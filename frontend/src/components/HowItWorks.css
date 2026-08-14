@@ -1,0 +1,128 @@
+.how-section {
+  padding: 100px 24px;
+  background: #f8fafc;
+}
+
+.how-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-heading {
+  max-width: 700px;
+  margin: 0 auto 60px;
+  text-align: center;
+}
+
+.section-badge {
+  display: inline-block;
+
+  padding: 7px 12px;
+  margin-bottom: 18px;
+
+  border-radius: 999px;
+
+  background: #dbeafe;
+  color: #2563eb;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.section-heading h2 {
+  font-size: 46px;
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+
+  color: #0f172a;
+
+  margin-bottom: 18px;
+}
+
+.section-heading h2 span {
+  color: #2563eb;
+}
+
+.section-heading p {
+  font-size: 17px;
+  line-height: 1.7;
+  color: #64748b;
+}
+
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.step-card {
+  padding: 30px;
+
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+
+  box-shadow:
+    0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+.step-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 28px;
+}
+
+.step-number {
+  font-size: 13px;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.step-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #eff6ff;
+
+  font-size: 22px;
+}
+
+.step-card h3 {
+  font-size: 20px;
+  color: #0f172a;
+
+  margin-bottom: 12px;
+}
+
+.step-card p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #64748b;
+}
+
+@media (max-width: 800px) {
+  .steps-container {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading h2 {
+    font-size: 38px;
+  }
+}
