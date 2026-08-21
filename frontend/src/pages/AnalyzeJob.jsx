@@ -1,17 +1,39 @@
 import { useState } from "react";
 import "./AnalyzeJob.css";
+import { analyzeJob } from "../services/api";
 
 function AnalyzeJob() {
   const [inputType, setInputType] = useState("description");
   const [jobText, setJobText] = useState("");
 
-  const handleAnalyze = (event) => {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+
+  const handleAnalyze = async (event) => {
     event.preventDefault();
 
-    console.log({
-      type: inputType,
-      content: jobText,
-    });
+    if (!jobText.trim()) {
+      return;
+    }
+
+    setLoading(true);
+    setResult(null);
+    setError("");
+
+    try {
+      const data = await analyzeJob({
+        inputType: inputType,
+        content: jobText,
+      });
+
+      setResult(data);
+    } catch (error) {
+      console.error(error);
+      setError("Unable to analyze the job. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -118,6 +140,7 @@ function AnalyzeJob() {
             )}
 
             <div className="input-footer">
+
               <span>
                 🔒 Your submitted content is analyzed securely.
               </span>
@@ -125,6 +148,7 @@ function AnalyzeJob() {
               <span>
                 {jobText.length} characters
               </span>
+
             </div>
 
           </div>
@@ -132,12 +156,44 @@ function AnalyzeJob() {
           <button
             type="submit"
             className="analyze-btn"
-            disabled={!jobText.trim()}
+            disabled={!jobText.trim() || loading}
           >
-            🔍 Analyze Risk
+            {loading ? "⏳ Analyzing..." : "🔍 Analyze Risk"}
           </button>
 
         </form>
+
+        {/* Error Message */}
+
+        {error && (
+          <div className="analysis-error">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Analysis Result */}
+
+        {result && (
+          <div className="analysis-result">
+
+            <h3>🛡️ Job Analysis Result</h3>
+
+            <div className="result-item">
+              <strong>Risk Score:</strong>
+              <span>{result.riskScore}</span>
+            </div>
+
+            <div className="result-item">
+              <strong>Risk Level:</strong>
+              <span>{result.riskLevel}</span>
+            </div>
+
+            <p>
+              {result.message}
+            </p>
+
+          </div>
+        )}
 
       </div>
 
