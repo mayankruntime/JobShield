@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import AnalyzeJob from "./pages/AnalyzeJob";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import History from "./pages/History";
 
 function ProtectedAnalyze() {
 
@@ -53,6 +54,10 @@ function App() {
         <Route
           path="/analyze"
           element={<ProtectedAnalyze />}
+        />
+        <Route
+          path="/history"
+          element={<History />}
         />
 
       </Routes>

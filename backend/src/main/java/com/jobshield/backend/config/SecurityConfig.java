@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,7 +17,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.jobshield.backend.security.JwtAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -45,14 +43,17 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
+                // Public APIs
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/health"
                 ).permitAll()
 
+                // CORS preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**")
                 .permitAll()
 
+                // Everything else requires JWT
                 .anyRequest().authenticated()
             );
 
@@ -69,16 +70,29 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(
-            List.of("http://localhost:5173")
+        // Allow Vite frontend on different ports
+        configuration.setAllowedOriginPatterns(
+            List.of(
+                "http://localhost:*",
+                "http://127.0.0.1:*"
+            )
         );
 
         configuration.setAllowedMethods(
-            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+            )
         );
 
         configuration.setAllowedHeaders(
-            List.of("Authorization", "Content-Type")
+            List.of(
+                "Authorization",
+                "Content-Type"
+            )
         );
 
         configuration.setAllowCredentials(true);
