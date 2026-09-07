@@ -192,6 +192,32 @@ function AnalyzeJob() {
               {result.message}
             </p>
 
+            {/* Scam Reasons */}
+
+            {result.reasons && result.reasons.length > 0 && (
+              <div className="analysis-reasons">
+
+                <h4>⚠️ Why is this job suspicious?</h4>
+
+                <ul>
+                  {result.reasons.map((reason, index) => (
+                    <li key={index}>
+                      {reason}
+                    </li>
+                  ))}
+                </ul>
+
+              </div>
+            )}
+
+            {/* Safe Result */}
+
+            {result.reasons && result.reasons.length === 0 && (
+              <div className="analysis-safe">
+                ✅ No specific scam indicators were detected.
+              </div>
+            )}
+
           </div>
         )}
 
