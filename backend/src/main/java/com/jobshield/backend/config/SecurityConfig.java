@@ -46,7 +46,8 @@ public class SecurityConfig {
                 // Public APIs
                 .requestMatchers(
                     "/api/auth/**",
-                    "/api/health"
+                    "/api/health",
+                     "/api/ml/predict"
                 ).permitAll()
 
                 // CORS preflight

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.jobshield.backend.dto.JobAnalysisRequest;
 import com.jobshield.backend.dto.JobAnalysisResponse;
+import com.jobshield.backend.dto.MlPredictionResponse;
 import com.jobshield.backend.entity.AnalysisHistory;
 import com.jobshield.backend.entity.User;
 import com.jobshield.backend.repository.AnalysisHistoryRepository;
@@ -19,13 +20,16 @@ public class JobAnalysisService {
 
     private final AnalysisHistoryRepository analysisHistoryRepository;
     private final UserRepository userRepository;
+    private final MlService mlService;
 
     public JobAnalysisService(
             AnalysisHistoryRepository analysisHistoryRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            MlService mlService
     ) {
         this.analysisHistoryRepository = analysisHistoryRepository;
         this.userRepository = userRepository;
+        this.mlService = mlService;
     }
 
     public JobAnalysisResponse analyzeJob(
@@ -57,9 +61,13 @@ public class JobAnalysisService {
 
         String text = content.toLowerCase(Locale.ROOT);
 
-        int riskScore = 0;
+        int ruleScore = 0;
 
         List<String> reasons = new ArrayList<>();
+
+        // ==============================
+        // RULE-BASED DETECTION
+        // ==============================
 
         // 1. Registration / processing / joining fee
         if (containsAny(text,
@@ -72,7 +80,7 @@ public class JobAnalysisService {
                 "deposit money",
                 "pay money")) {
 
-            riskScore += 25;
+            ruleScore += 25;
 
             reasons.add(
                     "Job asks for registration, processing, joining fee or money deposit."
@@ -91,7 +99,7 @@ public class JobAnalysisService {
                 "atm pin",
                 "card number")) {
 
-            riskScore += 25;
+            ruleScore += 25;
 
             reasons.add(
                     "Job asks for sensitive financial or payment information."
@@ -105,7 +113,7 @@ public class JobAnalysisService {
                 "contact me on whatsapp",
                 "message me on telegram")) {
 
-            riskScore += 15;
+            ruleScore += 15;
 
             reasons.add(
                     "Recruiter asks to communicate through WhatsApp or Telegram."
@@ -125,7 +133,7 @@ public class JobAnalysisService {
                 "easy money",
                 "earn money from home")) {
 
-            riskScore += 20;
+            ruleScore += 20;
 
             reasons.add(
                     "Job contains potentially unrealistic or guaranteed earning claims."
@@ -144,7 +152,7 @@ public class JobAnalysisService {
                 "apply today",
                 "immediate joining")) {
 
-            riskScore += 10;
+            ruleScore += 10;
 
             reasons.add(
                     "Job uses urgency or pressure to encourage immediate action."
@@ -162,7 +170,7 @@ public class JobAnalysisService {
                 "identity proof",
                 "government id")) {
 
-            riskScore += 20;
+            ruleScore += 20;
 
             reasons.add(
                     "Job requests sensitive personal identity documents."
@@ -177,20 +185,58 @@ public class JobAnalysisService {
                 "click here to register",
                 "verify your account")) {
 
-            riskScore += 15;
+            ruleScore += 15;
 
             reasons.add(
                     "Job contains potentially suspicious links or verification requests."
             );
         }
 
-        // Maximum score = 100
-        riskScore = Math.min(riskScore, 100);
+        ruleScore = Math.min(ruleScore, 100);
+
+        // ==============================
+        // ML MODEL PREDICTION
+        // ==============================
+
+        MlPredictionResponse mlResult = mlService.predict(content);
+
+        String mlPrediction = mlResult.getPrediction();
+        double mlDecisionScore = mlResult.getDecisionScore();
+
+        // ==============================
+        // COMBINE RULE + ML
+        // ==============================
+
+        int mlScore = 0;
+
+        if ("FRAUDULENT".equalsIgnoreCase(mlPrediction)) {
+            mlScore = 60;
+
+            reasons.add(
+                    "Machine learning model detected patterns similar to fraudulent job postings."
+            );
+        }
+
+        /*
+         * Rule score gets 60% weight.
+         * ML score gets 40% weight.
+         */
+        int finalRiskScore =
+                (int) Math.round(
+                        (ruleScore * 0.60) +
+                        (mlScore * 0.40)
+                );
+
+        finalRiskScore = Math.min(finalRiskScore, 100);
+
+        // ==============================
+        // FINAL RISK LEVEL
+        // ==============================
 
         String riskLevel;
         String message;
 
-        if (riskScore >= 60) {
+        if (finalRiskScore >= 60) {
 
             riskLevel = "HIGH RISK";
 
@@ -198,7 +244,7 @@ public class JobAnalysisService {
                     "This job posting contains multiple suspicious indicators. "
                     + "Proceed with extreme caution.";
 
-        } else if (riskScore >= 30) {
+        } else if (finalRiskScore >= 30) {
 
             riskLevel = "SUSPICIOUS";
 
@@ -215,20 +261,27 @@ public class JobAnalysisService {
                     + "Still verify the employer before sharing personal information.";
         }
 
-        // Save analysis history
+        // ==============================
+        // SAVE ANALYSIS HISTORY
+        // ==============================
+
         AnalysisHistory history = new AnalysisHistory(
                 user,
                 content,
                 request.getInputType(),
-                riskScore,
+                finalRiskScore,
                 riskLevel,
                 message
         );
 
         analysisHistoryRepository.save(history);
 
+        // ==============================
+        // RETURN RESULT
+        // ==============================
+
         return new JobAnalysisResponse(
-                riskScore,
+                finalRiskScore,
                 riskLevel,
                 message,
                 reasons
