@@ -1,126 +1,289 @@
-
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getAnalysisHistory } from "../services/api";
 import "./History.css";
 
 function History() {
-    const [history, setHistory] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
 
-    useEffect(() => {
-        const loadHistory = async () => {
-            try {
-                const data = await getAnalysisHistory();
-                setHistory(data);
-            } catch (error) {
-                console.error(error);
-                setError("Unable to load analysis history.");
-            } finally {
-                setLoading(false);
-            }
-        };
+  const navigate = useNavigate();
 
-        loadHistory();
-    }, []);
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+
+    const loadHistory = async () => {
+
+      try {
+
+        const data = await getAnalysisHistory();
+
+        setHistory(data);
+
+      } catch (error) {
+
+        console.error(error);
+        setError("Unable to load analysis history.");
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    };
+
+    loadHistory();
+
+  }, []);
+
+
+  const getRiskClass = (riskLevel) => {
+
+    if (riskLevel === "HIGH RISK") {
+      return "history-high";
+    }
+
+    if (riskLevel === "SUSPICIOUS") {
+      return "history-suspicious";
+    }
+
+    return "history-low";
+  };
+
+
+  const formatDate = (date) => {
+
+    if (!date) {
+      return "Unknown date";
+    }
+
+    return new Date(date).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+  };
+
+
+  if (loading) {
 
     return (
-        <section className="history-section">
-            <div className="history-container">
+      <section className="history-section">
 
-                <div className="history-heading">
-                    <span className="section-badge">
-                        ANALYSIS HISTORY
+        <div className="history-container">
+
+          <div className="history-message">
+            ⏳ Loading your analysis history...
+          </div>
+
+        </div>
+
+      </section>
+    );
+
+  }
+
+
+  if (error) {
+
+    return (
+      <section className="history-section">
+
+        <div className="history-container">
+
+          <div className="history-error">
+            ⚠️ {error}
+          </div>
+
+        </div>
+
+      </section>
+    );
+
+  }
+
+
+  return (
+
+    <section className="history-section">
+
+      <div className="history-container">
+
+
+        {/* Header */}
+
+        <div className="history-heading">
+
+          <span className="section-badge">
+            JOBSHIELD HISTORY
+          </span>
+
+          <h2>
+            Your Analysis
+            <span> History</span>
+          </h2>
+
+          <p>
+            Review your previously analyzed job offers
+            and their detected risk levels.
+          </p>
+
+        </div>
+
+
+        {/* Action */}
+
+        <div className="history-actions">
+
+          <button
+            className="history-analyze-btn"
+            onClick={() => navigate("/analyze")}
+          >
+            🔍 Analyze New Job
+          </button>
+
+        </div>
+
+
+        {/* Empty State */}
+
+        {history.length === 0 ? (
+
+          <div className="history-empty">
+
+            <div className="empty-icon">
+              🛡️
+            </div>
+
+            <h3>
+              No analyses yet
+            </h3>
+
+            <p>
+              You haven't analyzed any job offers.
+              Start by checking a suspicious job posting.
+            </p>
+
+            <button
+              onClick={() => navigate("/analyze")}
+            >
+              Analyze Your First Job →
+            </button>
+
+          </div>
+
+        ) : (
+
+          <div className="history-list">
+
+            {history.map((item) => (
+
+              <div
+                className="history-card"
+                key={item.id}
+              >
+
+                {/* Top */}
+
+                <div className="history-card-top">
+
+                  <div className="history-type">
+
+                    <span className="history-type-icon">
+
+                      {item.inputType === "url"
+                        ? "🔗"
+                        : item.inputType === "message"
+                          ? "💬"
+                          : "📄"}
+
                     </span>
 
-                    <h2>
-                        Your Previous
-                        <span> Job Analyses</span>
-                    </h2>
+                    <div>
 
-                    <p>
-                        View all the job offers you have
-                        previously analyzed with JobShield.
-                    </p>
+                      <strong>
+                        {item.inputType === "url"
+                          ? "Job URL"
+                          : item.inputType === "message"
+                            ? "Job Message"
+                            : "Job Description"}
+                      </strong>
+
+                      <span>
+                        {formatDate(item.createdAt)}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+
+                  <div
+                    className={`history-risk ${getRiskClass(
+                      item.riskLevel
+                    )}`}
+                  >
+                    {item.riskLevel}
+                  </div>
+
                 </div>
 
-                {loading && (
-                    <div className="history-message">
-                        ⏳ Loading history...
-                    </div>
-                )}
 
-                {error && (
-                    <div className="history-error">
-                        ⚠️ {error}
-                    </div>
-                )}
+                {/* Content */}
 
-                {!loading && !error && history.length === 0 && (
-                    <div className="history-message">
-                        📭 No analysis history found.
-                    </div>
-                )}
+                <div className="history-content">
 
-                {!loading && !error && history.length > 0 && (
-                    <div className="history-list">
+                  <p>
+                    {item.content}
+                  </p>
 
-                        {history.map((item) => (
-                            <div
-                                className="history-card"
-                                key={item.id}
-                            >
-                                <div className="history-card-top">
+                </div>
 
-                                    <span className="history-type">
-                                        {item.inputType}
-                                    </span>
 
-                                    <span className="history-date">
-                                        {item.createdAt
-                                            ? new Date(
-                                                item.createdAt
-                                            ).toLocaleString()
-                                            : "Date unavailable"}
-                                    </span>
+                {/* Bottom */}
 
-                                </div>
+                <div className="history-card-bottom">
 
-                                <div className="history-content">
-                                    <p>{item.content}</p>
-                                </div>
+                  <div className="history-score">
 
-                                <div className="history-result">
+                    <span>
+                      Risk Score
+                    </span>
 
-                                    <div className="history-result-item">
-                                        <strong>Risk Score</strong>
-                                        <span>
-                                            {item.riskScore}
-                                        </span>
-                                    </div>
+                    <strong>
+                      {item.riskScore}/100
+                    </strong>
 
-                                    <div className="history-result-item">
-                                        <strong>Risk Level</strong>
-                                        <span>
-                                            {item.riskLevel}
-                                        </span>
-                                    </div>
+                  </div>
 
-                                </div>
 
-                                <p className="history-message-text">
-                                    {item.message}
-                                </p>
-                            </div>
-                        ))}
+                  <div className="history-message">
 
-                    </div>
-                )}
+                    {item.message}
 
-            </div>
-        </section>
-    );
+                  </div>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
+
+      </div>
+
+    </section>
+
+  );
+
 }
 
 export default History;
-

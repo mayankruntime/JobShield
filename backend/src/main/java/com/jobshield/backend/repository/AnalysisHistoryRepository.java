@@ -11,4 +11,8 @@ public interface AnalysisHistoryRepository
         extends JpaRepository<AnalysisHistory, Long> {
 
     List<AnalysisHistory> findByUserOrderByCreatedAtDesc(User user);
+
+    long countByUser(User user);
+
+    long countByUserAndRiskLevel(User user, String riskLevel);
 }

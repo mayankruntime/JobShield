@@ -40,3 +40,25 @@ export async function getAnalysisHistory() {
     return await response.json();
 }
 
+export async function getDashboard() {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        `${API_BASE_URL}/dashboard`,
+        {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        }
+    );
+
+    if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Dashboard API Error:", response.status, errorText);
+    throw new Error(`Dashboard failed: ${response.status}`);
+    }
+
+    return await response.json();
+}
+

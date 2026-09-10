@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
 
 function Navbar() {
 
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [isLoggedIn, setIsLoggedIn] = useState(
     !!localStorage.getItem("token")
   );
@@ -35,40 +37,92 @@ function Navbar() {
     navigate("/");
   };
 
+  const goToHowItWorks = () => {
+
+    if (location.pathname === "/") {
+
+      document
+        .getElementById("how-it-works")
+        ?.scrollIntoView({
+          behavior: "smooth"
+        });
+
+    } else {
+
+      navigate("/");
+
+      setTimeout(() => {
+        document
+          .getElementById("how-it-works")
+          ?.scrollIntoView({
+            behavior: "smooth"
+          });
+      }, 300);
+
+    }
+  };
+
   return (
     <nav className="navbar">
 
       <div className="navbar-container">
 
+        {/* Logo */}
         <div
           className="navbar-logo"
           onClick={() => navigate("/")}
-          style={{ cursor: "pointer" }}
         >
           <span className="logo-icon">🛡️</span>
           <span>JobShield</span>
         </div>
 
+
+        {/* Navigation Links */}
         <div className="navbar-links">
 
-          <a href="/">
+          <button
+            className="nav-link"
+            onClick={() => navigate("/")}
+          >
             Home
-          </a>
+          </button>
 
-          <a href="/#how-it-works">
+          <button
+            className="nav-link"
+            onClick={() => navigate("/analyze")}
+          >
+            Analyze
+          </button>
+
+          {isLoggedIn && (
+            <>
+              <button
+                className="nav-link"
+                onClick={() => navigate("/dashboard")}
+              >
+                Dashboard
+              </button>
+
+              <button
+                className="nav-link"
+                onClick={() => navigate("/history")}
+              >
+                History
+              </button>
+            </>
+          )}
+
+          <button
+            className="nav-link"
+            onClick={goToHowItWorks}
+          >
             How It Works
-          </a>
-
-          <a href="/#safety">
-            Safety
-          </a>
-
-          <a href="/#reports">
-            Reports
-          </a>
+          </button>
 
         </div>
 
+
+        {/* Right Side */}
         <div className="navbar-actions">
 
           {!isLoggedIn ? (

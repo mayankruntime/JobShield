@@ -1,6 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import "./Home.css";
 
 function Home() {
+
+  const navigate = useNavigate();
+
   return (
     <main className="home">
 
@@ -25,16 +29,29 @@ function Home() {
           </p>
 
           <div className="hero-buttons">
-            <button className="primary-btn">
+
+            <button
+              className="primary-btn"
+              onClick={() => navigate("/analyze")}
+            >
               🔍 Analyze a Job
             </button>
 
-            <button className="secondary-btn">
+            <button
+              className="secondary-btn"
+              onClick={() =>
+                document
+                  .getElementById("how-it-works")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
               Learn How It Works →
             </button>
+
           </div>
 
           <div className="hero-trust">
+
             <div>
               <strong>AI</strong>
               <span>Powered Analysis</span>
@@ -49,6 +66,7 @@ function Home() {
               <strong>24/7</strong>
               <span>Safety Awareness</span>
             </div>
+
           </div>
 
         </div>
@@ -65,6 +83,7 @@ function Home() {
             </div>
 
             <div className="risk-score">
+
               <div className="score-circle">
                 <span>87</span>
                 <small>/100</small>
@@ -74,6 +93,7 @@ function Home() {
                 <h3>High Risk</h3>
                 <p>Suspicious job detected</p>
               </div>
+
             </div>
 
             <div className="risk-indicators">

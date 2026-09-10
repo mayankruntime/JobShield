@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,7 +22,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter
+    ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
@@ -31,8 +34,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http
+    ) throws Exception {
 
         http
             .csrf(csrf -> csrf.disable())
@@ -41,27 +45,32 @@ public class SecurityConfig {
                 cors.configurationSource(corsConfigurationSource())
             )
 
+            // JWT based authentication
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                    SessionCreationPolicy.STATELESS
+                )
+            )
+
             .authorizeHttpRequests(auth -> auth
 
-                // Public APIs
                 .requestMatchers(
                     "/api/auth/**",
-                    "/api/health",
-                     "/api/ml/predict"
+                    "/api/health"
                 ).permitAll()
 
-                // CORS preflight
-                .requestMatchers(HttpMethod.OPTIONS, "/**")
-                .permitAll()
+                .requestMatchers(
+                    HttpMethod.OPTIONS,
+                    "/**"
+                ).permitAll()
 
-                // Everything else requires JWT
                 .anyRequest().authenticated()
-            );
+            )
 
-        http.addFilterBefore(
-            jwtAuthenticationFilter,
-            UsernamePasswordAuthenticationFilter.class
-        );
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
@@ -69,9 +78,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration =
+                new CorsConfiguration();
 
-        // Allow Vite frontend on different ports
         configuration.setAllowedOriginPatterns(
             List.of(
                 "http://localhost:*",

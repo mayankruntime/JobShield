@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AnalyzeJob.css";
 import { analyzeJob } from "../services/api";
 
 function AnalyzeJob() {
+
+  const navigate = useNavigate();
+
   const [inputType, setInputType] = useState("description");
   const [jobText, setJobText] = useState("");
 
@@ -10,7 +14,9 @@ function AnalyzeJob() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
+
   const handleAnalyze = async (event) => {
+
     event.preventDefault();
 
     if (!jobText.trim()) {
@@ -22,24 +28,96 @@ function AnalyzeJob() {
     setError("");
 
     try {
+
       const data = await analyzeJob({
         inputType: inputType,
         content: jobText,
       });
 
       setResult(data);
+
     } catch (error) {
+
       console.error(error);
-      setError("Unable to analyze the job. Please try again.");
+      setError(
+        "Unable to analyze the job. Please try again."
+      );
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
+
+  const getRiskClass = () => {
+
+    if (!result) {
+      return "";
+    }
+
+    if (result.riskLevel === "HIGH RISK") {
+      return "risk-high";
+    }
+
+    if (result.riskLevel === "SUSPICIOUS") {
+      return "risk-suspicious";
+    }
+
+    return "risk-low";
+  };
+
+
+  const getRiskIcon = () => {
+
+    if (!result) {
+      return "🛡️";
+    }
+
+    if (result.riskLevel === "HIGH RISK") {
+      return "🚨";
+    }
+
+    if (result.riskLevel === "SUSPICIOUS") {
+      return "⚠️";
+    }
+
+    return "✅";
+  };
+
+
+  const getRecommendation = () => {
+
+    if (!result) {
+      return "";
+    }
+
+    if (result.riskLevel === "HIGH RISK") {
+
+      return "Avoid this job offer. Do not send money or personal information unless the employer can be independently verified.";
+
+    }
+
+    if (result.riskLevel === "SUSPICIOUS") {
+
+      return "Proceed with caution. Verify the employer, recruiter and job details before sharing information or continuing.";
+
+    }
+
+    return "This posting appears relatively safe based on the detected indicators. Still verify the employer before applying.";
+
+  };
+
+
   return (
-    <section className="analyze-section" id="analyze">
+
+    <section className="analyze-section">
 
       <div className="analyze-container">
+
+
+        {/* Heading */}
 
         <div className="analyze-heading">
 
@@ -60,10 +138,16 @@ function AnalyzeJob() {
 
         </div>
 
+
+        {/* Analysis Form */}
+
         <form
           className="analyze-card"
           onSubmit={handleAnalyze}
         >
+
+
+          {/* Tabs */}
 
           <div className="input-tabs">
 
@@ -74,10 +158,14 @@ function AnalyzeJob() {
                   ? "tab active"
                   : "tab"
               }
-              onClick={() => setInputType("description")}
+              onClick={() => {
+                setInputType("description");
+                setResult(null);
+              }}
             >
               📄 Job Description
             </button>
+
 
             <button
               type="button"
@@ -86,10 +174,14 @@ function AnalyzeJob() {
                   ? "tab active"
                   : "tab"
               }
-              onClick={() => setInputType("message")}
+              onClick={() => {
+                setInputType("message");
+                setResult(null);
+              }}
             >
               💬 Message
             </button>
+
 
             <button
               type="button"
@@ -98,22 +190,34 @@ function AnalyzeJob() {
                   ? "tab active"
                   : "tab"
               }
-              onClick={() => setInputType("url")}
+              onClick={() => {
+                setInputType("url");
+                setResult(null);
+              }}
             >
               🔗 Job URL
             </button>
 
           </div>
 
+
+          {/* Input */}
+
           <div className="input-area">
 
             <label htmlFor="job-input">
+
               {inputType === "url"
                 ? "Paste the job URL"
-                : "Paste the suspicious job offer"}
+                : inputType === "message"
+                  ? "Paste the suspicious message"
+                  : "Paste the job description"}
+
             </label>
 
+
             {inputType === "url" ? (
+
               <input
                 id="job-input"
                 type="url"
@@ -123,7 +227,9 @@ function AnalyzeJob() {
                   setJobText(event.target.value)
                 }
               />
+
             ) : (
+
               <textarea
                 id="job-input"
                 rows="9"
@@ -137,7 +243,9 @@ function AnalyzeJob() {
                   setJobText(event.target.value)
                 }
               />
+
             )}
+
 
             <div className="input-footer">
 
@@ -153,78 +261,246 @@ function AnalyzeJob() {
 
           </div>
 
+
+          {/* Analyze Button */}
+
           <button
             type="submit"
             className="analyze-btn"
             disabled={!jobText.trim() || loading}
           >
-            {loading ? "⏳ Analyzing..." : "🔍 Analyze Risk"}
+
+            {loading
+              ? "⏳ Analyzing with AI..."
+              : "🔍 Analyze Risk"}
+
           </button>
 
         </form>
 
-        {/* Error Message */}
+
+        {/* Error */}
 
         {error && (
+
           <div className="analysis-error">
             ⚠️ {error}
           </div>
+
         )}
 
-        {/* Analysis Result */}
+
+        {/* Result */}
 
         {result && (
-          <div className="analysis-result">
 
-            <h3>🛡️ Job Analysis Result</h3>
+          <div className={`analysis-result ${getRiskClass()}`}>
 
-            <div className="result-item">
-              <strong>Risk Score:</strong>
-              <span>{result.riskScore}</span>
-            </div>
 
-            <div className="result-item">
-              <strong>Risk Level:</strong>
-              <span>{result.riskLevel}</span>
-            </div>
+            {/* Result Header */}
 
-            <p>
-              {result.message}
-            </p>
+            <div className="result-header">
 
-            {/* Scam Reasons */}
+              <div>
 
-            {result.reasons && result.reasons.length > 0 && (
-              <div className="analysis-reasons">
+                <span className="result-label">
+                  ANALYSIS COMPLETE
+                </span>
 
-                <h4>⚠️ Why is this job suspicious?</h4>
-
-                <ul>
-                  {result.reasons.map((reason, index) => (
-                    <li key={index}>
-                      {reason}
-                    </li>
-                  ))}
-                </ul>
+                <h3>
+                  {getRiskIcon()} Job Safety Result
+                </h3>
 
               </div>
-            )}
 
-            {/* Safe Result */}
-
-            {result.reasons && result.reasons.length === 0 && (
-              <div className="analysis-safe">
-                ✅ No specific scam indicators were detected.
+              <div className="result-status">
+                {result.riskLevel}
               </div>
-            )}
+
+            </div>
+
+
+            {/* Score */}
+
+            <div className="risk-overview">
+
+
+              <div className="score-wrapper">
+
+                <div className="score-circle-large">
+
+                  <strong>
+                    {result.riskScore}
+                  </strong>
+
+                  <span>
+                    /100
+                  </span>
+
+                </div>
+
+                <p>
+                  Risk Score
+                </p>
+
+              </div>
+
+
+              <div className="risk-description">
+
+                <span>
+                  DETECTED RISK LEVEL
+                </span>
+
+                <h4>
+                  {result.riskLevel}
+                </h4>
+
+                <p>
+                  {result.message}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            {/* Recommendation */}
+
+            <div className="recommendation">
+
+              <div className="recommendation-icon">
+                🛡️
+              </div>
+
+              <div>
+
+                <strong>
+                  Safety Recommendation
+                </strong>
+
+                <p>
+                  {getRecommendation()}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            {/* Reasons */}
+
+            {result.reasons &&
+              result.reasons.length > 0 && (
+
+                <div className="analysis-reasons">
+
+                  <div className="reasons-heading">
+
+                    <h4>
+                      ⚠️ Why is this job suspicious?
+                    </h4>
+
+                    <span>
+                      {result.reasons.length} indicators detected
+                    </span>
+
+                  </div>
+
+                  <ul>
+
+                    {result.reasons.map(
+                      (reason, index) => (
+
+                        <li key={index}>
+
+                          <span className="reason-icon">
+                            ⚠
+                          </span>
+
+                          <span>
+                            {reason}
+                          </span>
+
+                        </li>
+
+                      )
+                    )}
+
+                  </ul>
+
+                </div>
+
+              )}
+
+
+            {/* Safe */}
+
+            {result.reasons &&
+              result.reasons.length === 0 && (
+
+                <div className="analysis-safe">
+
+                  <span>
+                    ✅
+                  </span>
+
+                  <div>
+
+                    <strong>
+                      No specific scam indicators detected
+                    </strong>
+
+                    <p>
+                      JobShield did not identify any major
+                      warning signs in this submission.
+                    </p>
+
+                  </div>
+
+                </div>
+
+              )}
+
+
+            {/* Actions */}
+
+            <div className="result-actions">
+
+              <button
+                className="result-primary-btn"
+                onClick={() => {
+                  setResult(null);
+                  setJobText("");
+                  window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                  });
+                }}
+              >
+                🔄 Analyze Another Job
+              </button>
+
+
+              <button
+                className="result-secondary-btn"
+                onClick={() => navigate("/history")}
+              >
+                📜 View History
+              </button>
+
+            </div>
 
           </div>
+
         )}
 
       </div>
 
     </section>
+
   );
+
 }
 
 export default AnalyzeJob;
