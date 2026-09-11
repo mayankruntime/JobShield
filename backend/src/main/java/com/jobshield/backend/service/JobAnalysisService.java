@@ -21,15 +21,18 @@ public class JobAnalysisService {
     private final AnalysisHistoryRepository analysisHistoryRepository;
     private final UserRepository userRepository;
     private final MlService mlService;
+    private final UrlContentService urlContentService;
 
     public JobAnalysisService(
             AnalysisHistoryRepository analysisHistoryRepository,
             UserRepository userRepository,
-            MlService mlService
+            MlService mlService,
+            UrlContentService urlContentService
     ) {
         this.analysisHistoryRepository = analysisHistoryRepository;
         this.userRepository = userRepository;
         this.mlService = mlService;
+        this.urlContentService = urlContentService;
     }
 
     public JobAnalysisResponse analyzeJob(
@@ -44,6 +47,10 @@ public class JobAnalysisService {
                 );
 
         String content = request.getContent();
+
+        if ("url".equalsIgnoreCase(request.getInputType())) {
+        content = urlContentService.extractText(request.getContent());
+        }
 
         if (content == null || content.trim().isEmpty()) {
 
