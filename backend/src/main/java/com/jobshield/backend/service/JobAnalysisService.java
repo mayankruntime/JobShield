@@ -216,12 +216,18 @@ public class JobAnalysisService {
 
         int mlScore = 0;
 
-        if ("FRAUDULENT".equalsIgnoreCase(mlPrediction)) {
-            mlScore = 60;
+       if ("FRAUDULENT".equalsIgnoreCase(mlPrediction)) {
 
-            reasons.add(
-                    "Machine learning model detected patterns similar to fraudulent job postings."
-            );
+         // Convert SVM decision score into a bounded ML risk score
+          mlScore = (int) Math.round(
+            50 + (mlDecisionScore * 25)
+        );
+
+         mlScore = Math.min(100, Math.max(0, mlScore));
+
+         reasons.add(
+            "Machine learning model detected patterns similar to fraudulent job postings."
+         );
         }
 
         /*

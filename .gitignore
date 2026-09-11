@@ -1,7 +1,34 @@
+# Node / React
 node_modules/
-target/
-.env
-*.log
+dist/
+.vite/
+
+# Java / Spring Boot
+backend/target/
+*.class
+
+# Python
 __pycache__/
-venv/
+*.py[cod]
 .venv/
+venv/
+env/
+
+# ML generated files
+ml-service/data/
+ml-service/models/
+ml-service/*.joblib
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
