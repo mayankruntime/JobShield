@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -13,12 +14,18 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-    private final SecretKey secretKey = Keys.hmacShaKeyFor(
-            "JobShieldSuperSecretKeyForJWTAuthentication2026"
-                    .getBytes()
-    );
+    private final SecretKey secretKey;
 
     private final long expirationTime = 1000 * 60 * 60; // 1 hour
+
+    public JwtService(
+            @Value("${jwt.secret}") String secret
+    ) {
+
+        this.secretKey = Keys.hmacShaKeyFor(
+                secret.getBytes()
+        );
+    }
 
     public String generateToken(String email) {
 
