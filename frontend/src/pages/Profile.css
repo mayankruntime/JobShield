@@ -1,0 +1,540 @@
+
+/* ================================
+   JOBSHIELD PROFILE PAGE
+   Common Dark Glass Theme
+================================ */
+
+.profile-page {
+    min-height: 100vh;
+    padding: 105px 30px 60px;
+
+    background:
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(37, 99, 235, 0.14),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 90% 85%,
+            rgba(124, 58, 237, 0.12),
+            transparent 32%
+        ),
+        #070b14;
+
+    color: #ffffff;
+}
+
+
+/* ================================
+   CONTAINER
+================================ */
+
+.profile-container {
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 24px;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 17px;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+
+    background: rgba(15, 23, 42, 0.65);
+
+    color: #cbd5e1;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+.back-button:hover {
+    border-color: rgba(59, 130, 246, 0.45);
+
+    color: #ffffff;
+
+    background: rgba(30, 41, 59, 0.8);
+
+    transform: translateY(-1px);
+}
+
+.profile-badge {
+    padding: 7px 13px;
+
+    border: 1px solid rgba(59, 130, 246, 0.20);
+    border-radius: 20px;
+
+    background: rgba(37, 99, 235, 0.08);
+
+    color: #60a5fa;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1.8px;
+}
+
+
+/* ================================
+   MAIN CARD
+================================ */
+
+.profile-card {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 42px;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(15, 23, 42, 0.92),
+            rgba(10, 15, 27, 0.88)
+        );
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.38),
+        inset 0 1px rgba(255, 255, 255, 0.035);
+
+    backdrop-filter: blur(22px);
+}
+
+
+/* subtle glow */
+
+.profile-card::before {
+    content: "";
+
+    position: absolute;
+
+    width: 260px;
+    height: 260px;
+
+    top: -150px;
+    right: -100px;
+
+    border-radius: 50%;
+
+    background: rgba(59, 130, 246, 0.08);
+
+    filter: blur(40px);
+
+    pointer-events: none;
+}
+
+
+/* ================================
+   PROFILE TOP
+================================ */
+
+.profile-top {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+
+    gap: 25px;
+}
+
+
+/* Avatar */
+
+.profile-avatar {
+    width: 92px;
+    height: 92px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(96, 165, 250, 0.30);
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #7c3aed
+        );
+
+    color: #ffffff;
+
+    font-size: 34px;
+    font-weight: 800;
+
+    box-shadow:
+        0 0 35px rgba(59, 130, 246, 0.22),
+        inset 0 1px rgba(255, 255, 255, 0.18);
+}
+
+
+/* Intro */
+
+.profile-intro h1 {
+    margin: 0 0 6px;
+
+    font-size: 30px;
+    line-height: 1.2;
+
+    letter-spacing: -0.5px;
+}
+
+.profile-intro p {
+    margin: 0 0 13px;
+
+    color: #94a3b8;
+
+    font-size: 14px;
+}
+
+
+/* Verified */
+
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 11px;
+
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: 20px;
+
+    background: rgba(34, 197, 94, 0.07);
+
+    color: #4ade80;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 0.3px;
+}
+
+
+/* ================================
+   DIVIDER
+================================ */
+
+.profile-divider {
+    height: 1px;
+
+    margin: 36px 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.09),
+            transparent
+        );
+}
+
+
+/* ================================
+   ACCOUNT SECTION
+================================ */
+
+.account-section {
+    position: relative;
+    z-index: 1;
+}
+
+.account-section h2 {
+    margin: 0 0 20px;
+
+    color: #f1f5f9;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+/* ================================
+   INFORMATION GRID
+================================ */
+
+.info-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 15px;
+}
+
+.info-item {
+    padding: 19px 20px;
+
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.025);
+
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease,
+        transform 0.25s ease;
+}
+
+.info-item:hover {
+    border-color: rgba(59, 130, 246, 0.18);
+
+    background: rgba(59, 130, 246, 0.035);
+
+    transform: translateY(-2px);
+}
+
+
+/* Label */
+
+.info-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #64748b;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+
+/* Value */
+
+.info-item strong {
+    display: block;
+
+    overflow: hidden;
+
+    color: #e2e8f0;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.status-active {
+    color: #4ade80 !important;
+}
+
+
+/* ================================
+   ACTION BUTTONS
+================================ */
+
+.profile-actions {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+
+    gap: 14px;
+
+    margin-top: 32px;
+}
+
+.password-button,
+.logout-button {
+    flex: 1;
+
+    min-height: 48px;
+
+    border-radius: 12px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+
+/* Change Password */
+
+.password-button {
+    border: 1px solid rgba(59, 130, 246, 0.25);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(37, 99, 235, 0.17),
+            rgba(124, 58, 237, 0.12)
+        );
+
+    color: #dbeafe;
+
+    box-shadow:
+        inset 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.password-button:hover {
+    border-color: rgba(96, 165, 250, 0.45);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(37, 99, 235, 0.25),
+            rgba(124, 58, 237, 0.18)
+        );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px rgba(37, 99, 235, 0.12);
+}
+
+
+/* Logout */
+
+.logout-button {
+    border: 1px solid rgba(239, 68, 68, 0.18);
+
+    background: rgba(239, 68, 68, 0.06);
+
+    color: #fca5a5;
+}
+
+.logout-button:hover {
+    border-color: rgba(248, 113, 113, 0.35);
+
+    background: rgba(239, 68, 68, 0.12);
+
+    color: #fecaca;
+
+    transform: translateY(-2px);
+}
+
+
+/* ================================
+   LOADING / ERROR
+================================ */
+
+.profile-loading,
+.profile-error {
+    min-height: 70vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+}
+
+.profile-loading {
+    color: #94a3b8;
+}
+
+.profile-error {
+    color: #f87171;
+}
+
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 750px) {
+
+    .profile-page {
+        padding: 90px 20px 40px;
+    }
+
+    .profile-card {
+        padding: 30px 24px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    .profile-page {
+        padding: 80px 14px 30px;
+    }
+
+    .profile-header {
+        margin-bottom: 18px;
+    }
+
+    .profile-card {
+        padding: 25px 18px;
+
+        border-radius: 20px;
+    }
+
+    .profile-top {
+        flex-direction: column;
+
+        text-align: center;
+
+        gap: 17px;
+    }
+
+    .profile-avatar {
+        width: 78px;
+        height: 78px;
+
+        font-size: 29px;
+    }
+
+    .profile-intro h1 {
+        font-size: 25px;
+    }
+
+    .profile-intro p {
+        font-size: 13px;
+    }
+
+    .profile-divider {
+        margin: 28px 0;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+    .password-button,
+    .logout-button {
+        width: 100%;
+    }
+
+}
+

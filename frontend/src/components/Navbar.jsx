@@ -2,160 +2,228 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
 
+import jobshieldLogo from "../assets/jobshield-navbar-logo.png";
+
 function Navbar() {
 
-  const navigate = useNavigate();
-  const location = useLocation();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    !!localStorage.getItem("token")
-  );
+    const [isLoggedIn, setIsLoggedIn] = useState(
+        !!localStorage.getItem("token")
+    );
 
-  useEffect(() => {
+    useEffect(() => {
 
-    const checkLogin = () => {
-      setIsLoggedIn(!!localStorage.getItem("token"));
+        const checkLogin = () => {
+            setIsLoggedIn(!!localStorage.getItem("token"));
+        };
+
+        checkLogin();
+
+        window.addEventListener("storage", checkLogin);
+        window.addEventListener("authChange", checkLogin);
+
+        return () => {
+            window.removeEventListener("storage", checkLogin);
+            window.removeEventListener("authChange", checkLogin);
+        };
+
+    }, [location.pathname]);
+
+
+    const handleLogout = () => {
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("rememberMe");
+
+        window.dispatchEvent(new Event("authChange"));
+
+        navigate("/");
     };
 
-    window.addEventListener("storage", checkLogin);
-    window.addEventListener("authChange", checkLogin);
 
-    return () => {
-      window.removeEventListener("storage", checkLogin);
-      window.removeEventListener("authChange", checkLogin);
+    const goToHowItWorks = () => {
+
+        if (location.pathname === "/") {
+
+            document
+                .getElementById("how-it-works")
+                ?.scrollIntoView({
+                    behavior: "smooth"
+                });
+
+        } else {
+
+            navigate("/");
+
+            setTimeout(() => {
+
+                document
+                    .getElementById("how-it-works")
+                    ?.scrollIntoView({
+                        behavior: "smooth"
+                    });
+
+            }, 300);
+        }
     };
 
-  }, []);
 
-  const handleLogout = () => {
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    window.dispatchEvent(new Event("authChange"));
-
-    navigate("/");
-  };
-
-  const goToHowItWorks = () => {
-
-    if (location.pathname === "/") {
-
-      document
-        .getElementById("how-it-works")
-        ?.scrollIntoView({
-          behavior: "smooth"
-        });
-
-    } else {
-
-      navigate("/");
-
-      setTimeout(() => {
-        document
-          .getElementById("how-it-works")
-          ?.scrollIntoView({
-            behavior: "smooth"
-          });
-      }, 300);
-
-    }
-  };
-
-  return (
-    <nav className="navbar">
-
-      <div className="navbar-container">
-
-        {/* Logo */}
-        <div
-          className="navbar-logo"
-          onClick={() => navigate("/")}
-        >
-          <span className="logo-icon">🛡️</span>
-          <span>JobShield</span>
-        </div>
+    const isActive = (path) => {
+        return location.pathname === path;
+    };
 
 
-        {/* Navigation Links */}
-        <div className="navbar-links">
+    return (
+        <nav className="navbar">
 
-          <button
-            className="nav-link"
-            onClick={() => navigate("/")}
-          >
-            Home
-          </button>
+            <div className="navbar-container">
 
-          <button
-            className="nav-link"
-            onClick={() => navigate("/analyze")}
-          >
-            Analyze
-          </button>
+                {/* BRAND */}
 
-          {isLoggedIn && (
-            <>
-              <button
-                className="nav-link"
-                onClick={() => navigate("/dashboard")}
-              >
-                Dashboard
-              </button>
+                <div
+                    className="navbar-brand"
+                    onClick={() => navigate("/")}
+                >
 
-              <button
-                className="nav-link"
-                onClick={() => navigate("/history")}
-              >
-                History
-              </button>
-            </>
-          )}
+                    <img
+                        src={jobshieldLogo}
+                        alt="JobShield"
+                        className="navbar-logo-image"
+                    />
 
-          <button
-            className="nav-link"
-            onClick={goToHowItWorks}
-          >
-            How It Works
-          </button>
-
-        </div>
+                </div>
 
 
-        {/* Right Side */}
-        <div className="navbar-actions">
+                {/* NAVIGATION */}
 
-          {!isLoggedIn ? (
-            <>
-              <button
-                className="login-btn"
-                onClick={() => navigate("/login")}
-              >
-                Login
-              </button>
+                <div className="navbar-links">
 
-              <button
-                className="signup-btn"
-                onClick={() => navigate("/register")}
-              >
-                Get Started
-              </button>
-            </>
-          ) : (
-            <button
-              className="login-btn"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
-          )}
+                    <button
+                        className={`nav-link ${
+                            isActive("/") ? "active" : ""
+                        }`}
+                        onClick={() => navigate("/")}
+                    >
+                        Home
+                    </button>
 
-        </div>
 
-      </div>
+                    <button
+                        className={`nav-link ${
+                            isActive("/analyze") ? "active" : ""
+                        }`}
+                        onClick={() => navigate("/analyze")}
+                    >
+                        Analyze
+                    </button>
 
-    </nav>
-  );
+
+                    {isLoggedIn && (
+                        <>
+
+                            <button
+                                className={`nav-link ${
+                                    isActive("/dashboard")
+                                        ? "active"
+                                        : ""
+                                }`}
+                                onClick={() =>
+                                    navigate("/dashboard")
+                                }
+                            >
+                                Dashboard
+                            </button>
+
+
+                            <button
+                                className={`nav-link ${
+                                    isActive("/history")
+                                        ? "active"
+                                        : ""
+                                }`}
+                                onClick={() =>
+                                    navigate("/history")
+                                }
+                            >
+                                History
+                            </button>
+
+
+                            <button
+                                className={`nav-link ${
+                                    isActive("/profile")
+                                        ? "active"
+                                        : ""
+                                }`}
+                                onClick={() =>
+                                    navigate("/profile")
+                                }
+                            >
+                                Profile
+                            </button>
+
+                        </>
+                    )}
+
+
+                    <button
+                        className="nav-link how-link"
+                        onClick={goToHowItWorks}
+                    >
+                        How It Works
+                    </button>
+
+                </div>
+
+
+                {/* ACTIONS */}
+
+                <div className="navbar-actions">
+
+                    {!isLoggedIn ? (
+                        <>
+
+                            <button
+                                className="login-btn"
+                                onClick={() => navigate("/login")}
+                            >
+                                Login
+                            </button>
+
+
+                            <button
+                                className="signup-btn"
+                                onClick={() =>
+                                    navigate("/register")
+                                }
+                            >
+                                Get Started
+                                <span>→</span>
+                            </button>
+
+                        </>
+                    ) : (
+
+                        <button
+                            className="logout-btn"
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
+
+                    )}
+
+                </div>
+
+            </div>
+
+        </nav>
+    );
 }
 
 export default Navbar;

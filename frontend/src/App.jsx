@@ -8,6 +8,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import History from "./pages/History";
 import Dashboard from "./pages/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword";
+import Profile from "./pages/Profile";
 
 function ProtectedAnalyze() {
 
@@ -50,6 +52,10 @@ function App() {
           path="/register"
           element={<Register />}
         />
+        <Route 
+          path="/forgot-password" 
+          element={<ForgotPassword />} 
+        />
 
         {/* PROTECTED ANALYZE PAGE */}
         <Route
@@ -63,6 +69,10 @@ function App() {
         <Route
           path="/dashboard"
           element={<Dashboard />}
+        />
+        <Route
+          path="/profile"
+          element={<Profile />}
         />
 
       </Routes>

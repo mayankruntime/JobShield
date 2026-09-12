@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jobshield.backend.dto.ForgotPasswordRequest;
 import com.jobshield.backend.dto.LoginRequest;
 import com.jobshield.backend.dto.LoginResponse;
 import com.jobshield.backend.dto.RegisterRequest;
+import com.jobshield.backend.dto.ResetPasswordRequest;
 import com.jobshield.backend.service.AuthService;
 
 @RestController
@@ -42,5 +44,25 @@ public class AuthController {
                 authService.login(request);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(
+            @RequestBody ForgotPasswordRequest request) {
+
+        String result =
+                authService.forgotPassword(request);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(
+            @RequestBody ResetPasswordRequest request) {
+
+        String result =
+                authService.resetPassword(request);
+
+        return ResponseEntity.ok(result);
     }
 }
