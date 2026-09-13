@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import History from "./pages/History";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 
 
@@ -70,6 +71,11 @@ function App() {
         <Route
           path="/forgot-password"
           element={<ForgotPassword />}
+        />
+
+        <Route
+          path="/reset-password"
+          element={<ResetPassword />}
         />
 
 

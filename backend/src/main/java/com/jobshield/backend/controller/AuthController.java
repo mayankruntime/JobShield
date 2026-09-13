@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.jobshield.backend.dto.ForgotPasswordRequest;
 import com.jobshield.backend.dto.LoginRequest;
 import com.jobshield.backend.dto.LoginResponse;
@@ -23,9 +25,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+    // ================= REGISTER =================
+
     @PostMapping("/register")
     public ResponseEntity<String> register(
-            @RequestBody RegisterRequest request) {
+            @Valid @RequestBody RegisterRequest request) {
 
         String result = authService.register(request);
 
@@ -36,9 +40,11 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
+    // ================= LOGIN =================
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
-            @RequestBody LoginRequest request) {
+            @Valid @RequestBody LoginRequest request) {
 
         LoginResponse response =
                 authService.login(request);
@@ -46,9 +52,11 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    // ================= FORGOT PASSWORD =================
+
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(
-            @RequestBody ForgotPasswordRequest request) {
+            @Valid @RequestBody ForgotPasswordRequest request) {
 
         String result =
                 authService.forgotPassword(request);
@@ -56,9 +64,11 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
+    // ================= RESET PASSWORD =================
+
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(
-            @RequestBody ResetPasswordRequest request) {
+            @Valid @RequestBody ResetPasswordRequest request) {
 
         String result =
                 authService.resetPassword(request);

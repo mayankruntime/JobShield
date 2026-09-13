@@ -1,4 +1,3 @@
-
 package com.jobshield.backend.service;
 
 import java.time.LocalDateTime;
@@ -24,17 +23,20 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
-            PasswordResetTokenRepository passwordResetTokenRepository) {
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            EmailService emailService) {
 
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
     }
 
     // ================= REGISTER =================
@@ -101,14 +103,18 @@ public class AuthService {
                 .findByEmail(request.getEmail())
                 .orElse(null);
 
+        /*
+         * Do not reveal whether an email is registered.
+         * This prevents email/account enumeration.
+         */
         if (user == null) {
-            return "If the email is registered, a reset link will be generated.";
+            return "If the email is registered, a password reset link has been sent.";
         }
 
-        // Delete old token if it exists
+        // Delete any previous reset token
         passwordResetTokenRepository.deleteByUser(user);
 
-        // Generate new token
+        // Generate secure random token
         String token = UUID.randomUUID().toString();
 
         // Token valid for 15 minutes
@@ -124,8 +130,31 @@ public class AuthService {
 
         passwordResetTokenRepository.save(resetToken);
 
-        // Temporary development response
-        return "Password reset token: " + token;
+        /*
+         * Frontend reset page
+         */
+        String resetLink =
+                "http://localhost:5173/reset-password?token="
+                        + token;
+
+        try {
+
+            emailService.sendPasswordResetEmail(
+                    user.getEmail(),
+                    resetLink
+            );
+
+        } catch (Exception e) {
+
+            // Remove token if email could not be sent
+            passwordResetTokenRepository.delete(resetToken);
+
+            throw new RuntimeException(
+                    "Unable to send password reset email"
+            );
+        }
+
+        return "If the email is registered, a password reset link has been sent.";
     }
 
     // ================= RESET PASSWORD =================
@@ -141,6 +170,7 @@ public class AuthService {
             return "Invalid reset token";
         }
 
+        // Check token expiry
         if (resetToken.getExpiryDate()
                 .isBefore(LocalDateTime.now())) {
 
@@ -149,14 +179,16 @@ public class AuthService {
             return "Reset token has expired";
         }
 
+        // Password validation
         if (request.getNewPassword() == null
-                || request.getNewPassword().length() < 6) {
+                || request.getNewPassword().length() < 8) {
 
-            return "Password must be at least 6 characters";
+            return "Password must be at least 8 characters";
         }
 
         User user = resetToken.getUser();
 
+        // Hash new password
         String hashedPassword =
                 passwordEncoder.encode(
                         request.getNewPassword()
@@ -166,10 +198,9 @@ public class AuthService {
 
         userRepository.save(user);
 
-        // Token can be used only once
+        // Token can only be used once
         passwordResetTokenRepository.delete(resetToken);
 
         return "Password reset successfully";
     }
 }
-

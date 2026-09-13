@@ -1,4 +1,3 @@
-
 package com.jobshield.backend.controller;
 
 import java.util.List;
@@ -9,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 
 import com.jobshield.backend.dto.JobAnalysisRequest;
 import com.jobshield.backend.dto.JobAnalysisResponse;
@@ -38,7 +39,7 @@ public class JobAnalysisController {
 
     @PostMapping("/analyze")
     public JobAnalysisResponse analyzeJob(
-            @RequestBody JobAnalysisRequest request,
+            @Valid @RequestBody JobAnalysisRequest request,
             Authentication authentication
     ) {
 
@@ -64,4 +65,3 @@ public class JobAnalysisController {
                 .findByUserOrderByCreatedAtDesc(user);
     }
 }
-
