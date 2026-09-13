@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import HowItWorks from "./components/HowItWorks";
+
 import Home from "./pages/Home";
 import AnalyzeJob from "./pages/AnalyzeJob";
 import Login from "./pages/Login";
@@ -11,7 +12,12 @@ import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import Profile from "./pages/Profile";
 
-function ProtectedAnalyze() {
+
+/* =========================================
+   PROTECTED ROUTE
+========================================= */
+
+function ProtectedRoute({ children }) {
 
   const token = localStorage.getItem("token");
 
@@ -19,10 +25,12 @@ function ProtectedAnalyze() {
     return <Navigate to="/login" replace />;
   }
 
-  return <AnalyzeJob />;
+  return children;
 }
 
+
 function App() {
+
   return (
     <BrowserRouter>
 
@@ -30,7 +38,10 @@ function App() {
 
       <Routes>
 
-        {/* HOME */}
+        {/* =================================
+            PUBLIC HOME
+        ================================= */}
+
         <Route
           path="/"
           element={
@@ -41,38 +52,90 @@ function App() {
           }
         />
 
-        {/* LOGIN */}
+
+        {/* =================================
+            PUBLIC AUTH PAGES
+        ================================= */}
+
         <Route
           path="/login"
           element={<Login />}
         />
 
-        {/* REGISTER */}
         <Route
           path="/register"
           element={<Register />}
         />
-        <Route 
-          path="/forgot-password" 
-          element={<ForgotPassword />} 
+
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword />}
         />
 
-        {/* PROTECTED ANALYZE PAGE */}
+
+        {/* =================================
+            PROTECTED ANALYZE
+        ================================= */}
+
         <Route
           path="/analyze"
-          element={<ProtectedAnalyze />}
+          element={
+            <ProtectedRoute>
+              <AnalyzeJob />
+            </ProtectedRoute>
+          }
         />
-        <Route
-          path="/history"
-          element={<History />}
-        />
+
+
+        {/* =================================
+            PROTECTED DASHBOARD
+        ================================= */}
+
         <Route
           path="/dashboard"
-          element={<Dashboard />}
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
         />
+
+
+        {/* =================================
+            PROTECTED HISTORY
+        ================================= */}
+
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* =================================
+            PROTECTED PROFILE
+        ================================= */}
+
         <Route
           path="/profile"
-          element={<Profile />}
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* =================================
+            UNKNOWN URL
+        ================================= */}
+
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
         />
 
       </Routes>

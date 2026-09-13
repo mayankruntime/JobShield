@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 
+import { getProfile } from "../services/api";
+
+
 function Profile() {
 
     const navigate = useNavigate();
@@ -9,6 +12,7 @@ function Profile() {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
 
     useEffect(() => {
 
@@ -23,21 +27,7 @@ function Profile() {
 
             try {
 
-                const response = await fetch(
-                    "http://localhost:8080/api/profile",
-                    {
-                        method: "GET",
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error("Unable to load profile.");
-                }
-
-                const data = await response.json();
+                const data = await getProfile();
 
                 setProfile(data);
 
@@ -54,9 +44,11 @@ function Profile() {
             }
         };
 
+
         fetchProfile();
 
     }, [navigate]);
+
 
     const handleLogout = () => {
 
@@ -66,30 +58,42 @@ function Profile() {
         localStorage.removeItem("userId");
         localStorage.removeItem("rememberMe");
 
+        window.dispatchEvent(new Event("authChange"));
+
         navigate("/login");
     };
 
+
     if (loading) {
+
         return (
             <div className="profile-page">
+
                 <div className="profile-loading">
                     Loading profile...
                 </div>
+
             </div>
         );
     }
 
+
     if (error) {
+
         return (
             <div className="profile-page">
+
                 <div className="profile-error">
                     {error}
                 </div>
+
             </div>
         );
     }
 
+
     return (
+
         <div className="profile-page">
 
             <div className="profile-container">
@@ -109,13 +113,20 @@ function Profile() {
 
                 </div>
 
+
                 <div className="profile-card">
 
                     <div className="profile-top">
 
                         <div className="profile-avatar">
-                            {profile?.name?.charAt(0).toUpperCase()}
+
+                            {profile?.name
+                                ?.charAt(0)
+                                .toUpperCase()
+                            }
+
                         </div>
+
 
                         <div className="profile-intro">
 
@@ -135,13 +146,16 @@ function Profile() {
 
                     </div>
 
+
                     <div className="profile-divider"></div>
+
 
                     <div className="account-section">
 
                         <h2>
                             Account Information
                         </h2>
+
 
                         <div className="info-grid">
 
@@ -157,6 +171,7 @@ function Profile() {
 
                             </div>
 
+
                             <div className="info-item">
 
                                 <span className="info-label">
@@ -169,6 +184,7 @@ function Profile() {
 
                             </div>
 
+
                             <div className="info-item">
 
                                 <span className="info-label">
@@ -180,6 +196,7 @@ function Profile() {
                                 </strong>
 
                             </div>
+
 
                             <div className="info-item">
 
@@ -197,6 +214,7 @@ function Profile() {
 
                     </div>
 
+
                     <div className="profile-actions">
 
                         <button
@@ -207,6 +225,7 @@ function Profile() {
                         >
                             🔐 Change Password
                         </button>
+
 
                         <button
                             className="logout-button"
@@ -222,7 +241,9 @@ function Profile() {
             </div>
 
         </div>
+
     );
 }
+
 
 export default Profile;
