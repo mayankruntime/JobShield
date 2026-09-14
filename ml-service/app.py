@@ -8,7 +8,10 @@ import joblib
 # ==========================================
 
 model = joblib.load("models/job_model.pkl")
-vectorizer = joblib.load("models/tfidf_vectorizer.pkl")
+
+vectorizer = joblib.load(
+    "models/tfidf_vectorizer.pkl"
+)
 
 
 # ==========================================
@@ -17,7 +20,7 @@ vectorizer = joblib.load("models/tfidf_vectorizer.pkl")
 
 app = FastAPI(
     title="JobShield ML Service",
-    version="1.0.0"
+    version="2.0.0"
 )
 
 
@@ -37,11 +40,27 @@ def predict_text(text):
 
     text_tfidf = vectorizer.transform([text])
 
-    prediction = model.predict(text_tfidf)[0]
+    prediction = model.predict(
+        text_tfidf
+    )[0]
 
-    decision_score = model.decision_function(text_tfidf)[0]
+    probabilities = model.predict_proba(
+        text_tfidf
+    )[0]
 
-    return prediction, decision_score
+    legitimate_probability = float(
+        probabilities[0]
+    )
+
+    fraud_probability = float(
+        probabilities[1]
+    )
+
+    return (
+        prediction,
+        legitimate_probability,
+        fraud_probability
+    )
 
 
 # ==========================================
@@ -52,7 +71,8 @@ def predict_text(text):
 def home():
 
     return {
-        "message": "JobShield ML Service is running"
+        "message": "JobShield ML Service is running",
+        "version": "2.0.0"
     }
 
 
@@ -63,20 +83,55 @@ def home():
 @app.post("/predict")
 def predict_job(request: JobRequest):
 
-    prediction, score = predict_text(request.text)
+    (
+        prediction,
+        legitimate_probability,
+        fraud_probability
+    ) = predict_text(request.text)
 
-    print("\nReceived text:")
+
+    print("\n==========================================")
+    print("JOBSHIELD ML PREDICTION")
+    print("==========================================")
+
+    print("Received text:")
     print(request.text)
 
-    print("Prediction:", prediction)
-    print("Decision Score:", score)
+    print("\nPrediction:", prediction)
+
+    print(
+        "Legitimate Probability:",
+        round(legitimate_probability, 4)
+    )
+
+    print(
+        "Fraud Probability:",
+        round(fraud_probability, 4)
+    )
+
+    print("==========================================\n")
+
 
     if prediction == 1:
+
         result = "FRAUDULENT"
+
     else:
+
         result = "LEGITIMATE"
 
+
     return {
+
         "prediction": result,
-        "decisionScore": round(float(score), 4)
+
+        "fraudProbability": round(
+            fraud_probability,
+            4
+        ),
+
+        "legitimateProbability": round(
+            legitimate_probability,
+            4
+        )
     }

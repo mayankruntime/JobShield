@@ -1,4 +1,3 @@
-
 package com.jobshield.backend.service;
 
 import java.util.ArrayList;
@@ -49,7 +48,9 @@ public class JobAnalysisService {
         String content = request.getContent();
 
         if ("url".equalsIgnoreCase(request.getInputType())) {
-        content = urlContentService.extractText(request.getContent());
+            content = urlContentService.extractText(
+                    request.getContent()
+            );
         }
 
         if (content == null || content.trim().isEmpty()) {
@@ -62,7 +63,10 @@ public class JobAnalysisService {
                     0,
                     "UNKNOWN",
                     "Please provide a job description for analysis.",
-                    reasons
+                    reasons,
+                    "UNKNOWN",
+                    0.0,
+                    0.0
             );
         }
 
@@ -72,9 +76,9 @@ public class JobAnalysisService {
 
         List<String> reasons = new ArrayList<>();
 
-        // ==============================
+        // ==========================================
         // RULE-BASED DETECTION
-        // ==============================
+        // ==========================================
 
         // 1. Registration / processing / joining fee
         if (containsAny(text,
@@ -201,50 +205,63 @@ public class JobAnalysisService {
 
         ruleScore = Math.min(ruleScore, 100);
 
-        // ==============================
+        // ==========================================
         // ML MODEL PREDICTION
-        // ==============================
+        // ==========================================
 
-        MlPredictionResponse mlResult = mlService.predict(content);
+        MlPredictionResponse mlResult =
+                mlService.predict(content);
 
-        String mlPrediction = mlResult.getPrediction();
-        double mlDecisionScore = mlResult.getDecisionScore();
+        String mlPrediction =
+                mlResult.getPrediction();
 
-        // ==============================
-        // COMBINE RULE + ML
-        // ==============================
+        double mlFraudProbability =
+                mlResult.getFraudProbability();
 
-        int mlScore = 0;
+        double mlLegitimateProbability =
+                mlResult.getLegitimateProbability();
 
-       if ("FRAUDULENT".equalsIgnoreCase(mlPrediction)) {
+        // ==========================================
+        // ML RISK SCORE
+        // ==========================================
 
-         // Convert SVM decision score into a bounded ML risk score
-          mlScore = (int) Math.round(
-            50 + (mlDecisionScore * 25)
+        int mlScore = (int) Math.round(
+                mlFraudProbability * 100
         );
 
-         mlScore = Math.min(100, Math.max(0, mlScore));
+        mlScore = Math.min(
+                100,
+                Math.max(0, mlScore)
+        );
 
-         reasons.add(
-            "Machine learning model detected patterns similar to fraudulent job postings."
-         );
+        // Add ML reason only when model considers
+        // the posting more likely to be fraudulent.
+        if ("FRAUDULENT".equalsIgnoreCase(mlPrediction)) {
+
+            reasons.add(
+                    "Machine learning model detected patterns similar to fraudulent job postings."
+            );
         }
 
-        /*
-         * Rule score gets 60% weight.
-         * ML score gets 40% weight.
-         */
+        // ==========================================
+        // COMBINE RULE + ML
+        // ==========================================
+
         int finalRiskScore =
                 (int) Math.round(
                         (ruleScore * 0.60) +
                         (mlScore * 0.40)
                 );
 
-        finalRiskScore = Math.min(finalRiskScore, 100);
+        finalRiskScore =
+                Math.min(
+                        100,
+                        Math.max(0, finalRiskScore)
+                );
 
-        // ==============================
+        // ==========================================
         // FINAL RISK LEVEL
-        // ==============================
+        // ==========================================
 
         String riskLevel;
         String message;
@@ -274,30 +291,34 @@ public class JobAnalysisService {
                     + "Still verify the employer before sharing personal information.";
         }
 
-        // ==============================
-        // SAVE ANALYSIS HISTORY
-        // ==============================
+        // ==========================================
+        // SAVE HISTORY
+        // ==========================================
 
-        AnalysisHistory history = new AnalysisHistory(
-                user,
-                content,
-                request.getInputType(),
-                finalRiskScore,
-                riskLevel,
-                message
-        );
+        AnalysisHistory history =
+                new AnalysisHistory(
+                        user,
+                        content,
+                        request.getInputType(),
+                        finalRiskScore,
+                        riskLevel,
+                        message
+                );
 
         analysisHistoryRepository.save(history);
 
-        // ==============================
+        // ==========================================
         // RETURN RESULT
-        // ==============================
+        // ==========================================
 
         return new JobAnalysisResponse(
                 finalRiskScore,
                 riskLevel,
                 message,
-                reasons
+                reasons,
+                mlPrediction,
+                mlFraudProbability,
+                mlLegitimateProbability
         );
     }
 

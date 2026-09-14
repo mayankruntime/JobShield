@@ -1,894 +1,900 @@
 
-/* ========================================
-   JOBSHIELD ANALYZE PAGE
-   Common Dark Glass Theme
-======================================== */
+/* ==========================================
+   ANALYZE PAGE
+   ========================================== */
 
 .analyze-section {
-    min-height: calc(100vh - 80px);
-    padding: 105px 20px 70px;
-
+    min-height: 100vh;
+    padding: 120px 20px 80px;
     background:
         radial-gradient(
-            circle at 12% 12%,
-            rgba(37, 99, 235, 0.13),
+            circle at 20% 10%,
+            rgba(99, 102, 241, 0.10),
             transparent 30%
         ),
         radial-gradient(
-            circle at 88% 80%,
-            rgba(124, 58, 237, 0.11),
-            transparent 32%
+            circle at 80% 30%,
+            rgba(139, 92, 246, 0.08),
+            transparent 30%
         ),
         #070b14;
-
     color: #ffffff;
 }
 
 .analyze-container {
-    max-width: 900px;
+    width: 100%;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
 
-/* ========================================
+/* ==========================================
    HEADING
-======================================== */
+   ========================================== */
 
 .analyze-heading {
     text-align: center;
-    margin-bottom: 38px;
+    max-width: 760px;
+    margin: 0 auto 42px;
+}
+
+.section-badge {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    background: rgba(99, 102, 241, 0.08);
+    color: #a5b4fc;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
 }
 
 .analyze-heading h2 {
-    margin: 15px 0;
-
-    color: #f8fafc;
-
-    font-size: 44px;
-    line-height: 1.1;
+    margin: 18px 0 14px;
+    font-size: clamp(32px, 5vw, 50px);
+    line-height: 1.08;
     letter-spacing: -1.5px;
 }
 
 .analyze-heading h2 span {
-    display: block;
-
-    background:
-        linear-gradient(
-            90deg,
-            #60a5fa,
-            #a78bfa
-        );
-
-    -webkit-background-clip: text;
-    background-clip: text;
-
-    color: transparent;
+    display: inline;
+    color: #818cf8;
 }
 
 .analyze-heading p {
-    max-width: 650px;
-
+    max-width: 680px;
     margin: 0 auto;
-
-    color: #94a3b8;
-
+    color: #9ca3af;
     font-size: 15px;
     line-height: 1.7;
 }
 
 
-/* ========================================
-   INPUT CARD
-======================================== */
+/* ==========================================
+   ANALYSIS FORM CARD
+   ========================================== */
 
 .analyze-card {
-    position: relative;
-
-    padding: 28px;
-
-    overflow: hidden;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(15, 23, 42, 0.92),
-            rgba(10, 15, 27, 0.88)
-        );
-
+    padding: 26px;
+    border-radius: 24px;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 22px;
-
+    background: rgba(15, 23, 42, 0.72);
     box-shadow:
-        0 30px 75px rgba(0, 0, 0, 0.35),
-        inset 0 1px rgba(255, 255, 255, 0.035);
-
-    backdrop-filter: blur(20px);
+        0 25px 70px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(18px);
 }
 
 
-/* ========================================
-   TABS
-======================================== */
+/* ==========================================
+   INPUT TABS
+   ========================================== */
 
 .input-tabs {
     display: flex;
-
     gap: 8px;
-
-    padding-bottom: 18px;
-    margin-bottom: 24px;
-
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 5px;
+    margin-bottom: 25px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.035);
 }
 
 .tab {
-    border: 1px solid transparent;
-
-    cursor: pointer;
-
-    padding: 10px 16px;
-
+    flex: 1;
+    border: none;
     border-radius: 10px;
-
+    padding: 12px 14px;
     background: transparent;
-
-    color: #64748b;
-
+    color: #8f96a3;
     font-size: 13px;
-    font-weight: 700;
-
+    font-weight: 600;
+    cursor: pointer;
     transition: all 0.25s ease;
 }
 
 .tab:hover {
-    background: rgba(255, 255, 255, 0.035);
-
-    color: #cbd5e1;
+    color: #e5e7eb;
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .tab.active {
-    border-color: rgba(59, 130, 246, 0.22);
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(37, 99, 235, 0.16),
-            rgba(124, 58, 237, 0.10)
-        );
-
-    color: #60a5fa;
-
+    color: #ffffff;
+    background: rgba(99, 102, 241, 0.18);
     box-shadow:
-        inset 0 1px rgba(255, 255, 255, 0.03);
+        inset 0 0 0 1px rgba(129, 140, 248, 0.22);
 }
 
 
-/* ========================================
-   INPUT
-======================================== */
+/* ==========================================
+   INPUT AREA
+   ========================================== */
 
 .input-area label {
     display: block;
-
     margin-bottom: 10px;
-
-    color: #cbd5e1;
-
-    font-size: 13px;
-    font-weight: 700;
+    color: #e5e7eb;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .input-area textarea,
 .input-area input {
     width: 100%;
-
     box-sizing: border-box;
-
-    padding: 15px 16px;
-
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 12px;
-
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
     outline: none;
-
-    background: rgba(2, 6, 23, 0.55);
-
-    color: #e2e8f0;
-
+    background: rgba(3, 7, 18, 0.7);
+    color: #f8fafc;
     font-family: inherit;
     font-size: 14px;
     line-height: 1.6;
-
-    resize: vertical;
-
-    transition: all 0.25s ease;
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 .input-area textarea {
-    min-height: 190px;
+    min-height: 210px;
+    padding: 16px;
+    resize: vertical;
 }
 
 .input-area input {
-    height: 52px;
-
-    resize: none;
-}
-
-.input-area textarea:hover,
-.input-area input:hover {
-    border-color: rgba(255, 255, 255, 0.14);
-}
-
-.input-area textarea:focus,
-.input-area input:focus {
-    border-color: rgba(59, 130, 246, 0.55);
-
-    background: rgba(2, 6, 23, 0.72);
-
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.10),
-        0 0 25px rgba(37, 99, 235, 0.06);
+    height: 54px;
+    padding: 0 16px;
 }
 
 .input-area textarea::placeholder,
 .input-area input::placeholder {
-    color: #475569;
+    color: #5f6877;
 }
+
+.input-area textarea:focus,
+.input-area input:focus {
+    border-color: rgba(129, 140, 248, 0.65);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+
+/* ==========================================
+   INPUT FOOTER
+   ========================================== */
 
 .input-footer {
     display: flex;
-
     justify-content: space-between;
-
+    gap: 15px;
     margin-top: 9px;
-
-    color: #64748b;
-
+    color: #687384;
     font-size: 11px;
 }
 
 
-/* ========================================
+/* ==========================================
    ANALYZE BUTTON
-======================================== */
+   ========================================== */
 
 .analyze-btn {
     width: 100%;
-
-    margin-top: 24px;
-
-    padding: 15px;
-
-    border: 1px solid rgba(96, 165, 250, 0.18);
-    border-radius: 12px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #2563eb,
-            #4f46e5
-        );
-
+    margin-top: 22px;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 13px;
+    background: linear-gradient(
+        135deg,
+        #6366f1,
+        #8b5cf6
+    );
     color: #ffffff;
-
-    cursor: pointer;
-
     font-size: 14px;
-    font-weight: 800;
-
-    box-shadow:
-        0 12px 30px rgba(37, 99, 235, 0.18);
-
-    transition: all 0.25s ease;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        opacity 0.25s ease;
 }
 
 .analyze-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-
-    box-shadow:
-        0 16px 35px rgba(37, 99, 235, 0.25);
-}
-
-.analyze-btn:active:not(:disabled) {
-    transform: translateY(0);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.25);
 }
 
 .analyze-btn:disabled {
     cursor: not-allowed;
-
     opacity: 0.45;
-
-    box-shadow: none;
 }
 
 
-/* ========================================
+/* ==========================================
+   ERROR
+   ========================================== */
+
+.analysis-error {
+    margin-top: 20px;
+    padding: 14px 17px;
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.20);
+    background: rgba(239, 68, 68, 0.08);
+    color: #fca5a5;
+    font-size: 13px;
+}
+
+
+/* ==========================================
    RESULT CARD
-======================================== */
+   ========================================== */
 
 .analysis-result {
-    position: relative;
-
-    margin-top: 28px;
-
+    margin-top: 30px;
     padding: 28px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(15, 23, 42, 0.94),
-            rgba(10, 15, 27, 0.90)
-        );
-
+    border-radius: 24px;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 22px;
-
+    background: rgba(15, 23, 42, 0.78);
     box-shadow:
-        0 30px 75px rgba(0, 0, 0, 0.32),
-        inset 0 1px rgba(255, 255, 255, 0.035);
-
-    backdrop-filter: blur(20px);
+        0 25px 70px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(18px);
 }
 
 
-/* ========================================
+/* ==========================================
    RESULT HEADER
-======================================== */
+   ========================================== */
 
 .result-header {
     display: flex;
-
-    justify-content: space-between;
     align-items: center;
-
+    justify-content: space-between;
     gap: 20px;
-
     padding-bottom: 22px;
-
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .result-label {
-    color: #64748b;
-
-    font-size: 9px;
+    display: block;
+    margin-bottom: 7px;
+    color: #818cf8;
+    font-size: 10px;
     font-weight: 800;
-
-    letter-spacing: 1.5px;
+    letter-spacing: 1.4px;
 }
 
 .result-header h3 {
-    margin: 6px 0 0;
-
-    color: #f1f5f9;
-
-    font-size: 21px;
+    margin: 0;
+    color: #f8fafc;
+    font-size: 22px;
 }
 
 .result-status {
     padding: 8px 13px;
-
-    border-radius: 20px;
-
-    font-size: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e5e7eb;
+    font-size: 11px;
     font-weight: 800;
-
-    letter-spacing: 0.4px;
+    letter-spacing: 0.7px;
 }
 
 
-/* ========================================
+/* ==========================================
    RISK OVERVIEW
-======================================== */
+   ========================================== */
 
 .risk-overview {
-    display: flex;
-
+    display: grid;
+    grid-template-columns: 190px 1fr;
     align-items: center;
-
-    gap: 35px;
-
+    gap: 38px;
     padding: 30px 0;
 }
 
 .score-wrapper {
-    flex-shrink: 0;
-
     text-align: center;
 }
 
-
-/* Score Circle */
-
 .score-circle-large {
-    width: 130px;
-    height: 130px;
-
+    width: 145px;
+    height: 145px;
+    margin: 0 auto;
+    border: 6px solid #6366f1;
+    border-radius: 50%;
     display: flex;
-
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    flex-direction: column;
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(15, 23, 42, 0.95),
-            rgba(2, 6, 23, 0.85)
-        );
-
-    border: 9px solid rgba(255, 255, 255, 0.08);
-
-    box-shadow:
-        inset 0 0 25px rgba(0, 0, 0, 0.25);
+    color: #818cf8;
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
 }
 
 .score-circle-large strong {
-    color: #f8fafc;
-
-    font-size: 37px;
-
+    font-size: 42px;
     line-height: 1;
 }
 
 .score-circle-large span {
     margin-top: 4px;
-
-    color: #64748b;
-
-    font-size: 11px;
+    color: #717b8d;
+    font-size: 12px;
 }
 
 .score-wrapper p {
-    margin: 10px 0 0;
-
-    color: #64748b;
-
-    font-size: 11px;
-    font-weight: 600;
-}
-
-
-/* Risk Description */
-
-.risk-description {
-    flex: 1;
+    margin: 11px 0 0;
+    color: #8f96a3;
+    font-size: 12px;
 }
 
 .risk-description > span {
-    color: #64748b;
-
-    font-size: 9px;
-    font-weight: 800;
-
-    letter-spacing: 1.5px;
+    color: #717b8d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
 }
 
 .risk-description h4 {
-    margin: 7px 0;
-
-    font-size: 25px;
-    line-height: 1.2;
+    margin: 8px 0;
+    font-size: 26px;
 }
 
 .risk-description p {
+    max-width: 600px;
     margin: 0;
+    color: #a1a8b4;
+    font-size: 14px;
+    line-height: 1.7;
+}
 
-    color: #94a3b8;
 
-    font-size: 13px;
+/* ==========================================
+   RISK SCORE COLORS
+   ========================================== */
 
+.analysis-result.risk-high .score-circle-large {
+    border-color: #ef4444;
+    color: #ef4444;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);
+}
+
+.analysis-result.risk-suspicious .score-circle-large {
+    border-color: #f59e0b;
+    color: #f59e0b;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
+}
+
+.analysis-result.risk-low .score-circle-large {
+    border-color: #22c55e;
+    color: #22c55e;
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.25);
+}
+
+
+/* ==========================================
+   ML DETECTION CARD
+   ========================================== */
+
+.ml-detection-card {
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid rgba(129, 140, 248, 0.12);
+    background: rgba(99, 102, 241, 0.035);
+}
+
+.ml-detection-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.ml-label {
+    display: block;
+    margin-bottom: 6px;
+    color: #818cf8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+.ml-detection-header h4 {
+    margin: 0;
+    color: #e5e7eb;
+    font-size: 17px;
+}
+
+.ml-status {
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+
+.ml-fraud {
+    color: #f87171 !important;
+}
+
+.ml-safe {
+    color: #4ade80 !important;
+}
+
+.ml-unknown {
+    color: #a1a1aa !important;
+}
+
+.ml-status.ml-fraud {
+    background: rgba(239, 68, 68, 0.10);
+}
+
+.ml-status.ml-safe {
+    background: rgba(34, 197, 94, 0.10);
+}
+
+.ml-status.ml-unknown {
+    background: rgba(161, 161, 170, 0.10);
+}
+
+
+/* ==========================================
+   ML INFORMATION
+   ========================================== */
+
+.ml-detection-body {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.ml-info-item {
+    min-width: 0;
+    padding: 13px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.ml-info-item span {
+    display: block;
+    margin-bottom: 6px;
+    color: #717b8d;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.ml-info-item strong {
+    display: block;
+    color: #d7dbe2;
+    font-size: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+
+/* ==========================================
+   ML PROBABILITY BARS
+   ========================================== */
+
+.ml-probability-bars {
+    margin-top: 20px;
+    padding: 17px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.probability-row {
+    width: 100%;
+}
+
+.probability-row + .probability-row {
+    margin-top: 18px;
+}
+
+.probability-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.probability-label span {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.probability-label strong {
+    font-size: 12px;
+}
+
+.probability-track {
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.probability-fill {
+    height: 100%;
+    border-radius: 50px;
+    transition: width 0.8s ease;
+}
+
+.fraud-fill {
+    background: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+}
+
+.legitimate-fill {
+    background: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.35);
+}
+
+
+/* ==========================================
+   ML NOTE
+   ========================================== */
+
+.ml-note {
+    margin: 17px 0 0;
+    color: #697384;
+    font-size: 11px;
     line-height: 1.6;
 }
 
 
-/* ========================================
-   RISK STATES
-======================================== */
-
-.analysis-result.risk-high {
-    border-color: rgba(239, 68, 68, 0.16);
-}
-
-.analysis-result.risk-high .result-status {
-    background: rgba(239, 68, 68, 0.10);
-
-    border: 1px solid rgba(239, 68, 68, 0.18);
-
-    color: #f87171;
-}
-
-.analysis-result.risk-high .score-circle-large {
-    border-color: rgba(239, 68, 68, 0.45);
-
-    box-shadow:
-        0 0 30px rgba(239, 68, 68, 0.08),
-        inset 0 0 25px rgba(0, 0, 0, 0.25);
-}
-
-.analysis-result.risk-high .risk-description h4 {
-    color: #f87171;
-}
-
-
-.analysis-result.risk-suspicious {
-    border-color: rgba(249, 115, 22, 0.14);
-}
-
-.analysis-result.risk-suspicious .result-status {
-    background: rgba(249, 115, 22, 0.10);
-
-    border: 1px solid rgba(249, 115, 22, 0.18);
-
-    color: #fb923c;
-}
-
-.analysis-result.risk-suspicious .score-circle-large {
-    border-color: rgba(249, 115, 22, 0.42);
-
-    box-shadow:
-        0 0 30px rgba(249, 115, 22, 0.07),
-        inset 0 0 25px rgba(0, 0, 0, 0.25);
-}
-
-.analysis-result.risk-suspicious .risk-description h4 {
-    color: #fb923c;
-}
-
-
-.analysis-result.risk-low {
-    border-color: rgba(34, 197, 94, 0.14);
-}
-
-.analysis-result.risk-low .result-status {
-    background: rgba(34, 197, 94, 0.09);
-
-    border: 1px solid rgba(34, 197, 94, 0.17);
-
-    color: #4ade80;
-}
-
-.analysis-result.risk-low .score-circle-large {
-    border-color: rgba(34, 197, 94, 0.38);
-
-    box-shadow:
-        0 0 30px rgba(34, 197, 94, 0.06),
-        inset 0 0 25px rgba(0, 0, 0, 0.25);
-}
-
-.analysis-result.risk-low .risk-description h4 {
-    color: #4ade80;
-}
-
-
-/* ========================================
+/* ==========================================
    RECOMMENDATION
-======================================== */
+   ========================================== */
 
 .recommendation {
     display: flex;
-
     align-items: flex-start;
-
-    gap: 14px;
-
+    gap: 15px;
+    margin-top: 20px;
     padding: 18px;
-
-    margin-bottom: 22px;
-
-    background: rgba(37, 99, 235, 0.07);
-
-    border: 1px solid rgba(59, 130, 246, 0.16);
-
-    border-radius: 13px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.025);
 }
 
 .recommendation-icon {
+    width: 38px;
+    height: 38px;
     flex-shrink: 0;
-
-    font-size: 21px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: rgba(99, 102, 241, 0.10);
+    font-size: 18px;
 }
 
 .recommendation strong {
-    color: #bfdbfe;
-
+    display: block;
+    margin-bottom: 6px;
+    color: #e5e7eb;
     font-size: 13px;
 }
 
 .recommendation p {
-    margin: 5px 0 0;
-
-    color: #94a3b8;
-
+    margin: 0;
+    color: #929aa8;
     font-size: 12px;
-
     line-height: 1.6;
 }
 
 
-/* ========================================
+/* ==========================================
    REASONS
-======================================== */
+   ========================================== */
 
 .analysis-reasons {
+    margin-top: 20px;
     padding: 20px;
-
-    background: rgba(249, 115, 22, 0.055);
-
-    border: 1px solid rgba(249, 115, 22, 0.14);
-
-    border-radius: 13px;
+    border-radius: 16px;
+    border: 1px solid rgba(239, 68, 68, 0.10);
+    background: rgba(239, 68, 68, 0.035);
 }
 
 .reasons-heading {
     display: flex;
-
-    justify-content: space-between;
     align-items: center;
-
+    justify-content: space-between;
     gap: 15px;
-
     margin-bottom: 15px;
 }
 
-.analysis-reasons h4 {
+.reasons-heading h4 {
     margin: 0;
-
-    color: #fdba74;
-
-    font-size: 15px;
+    color: #e5e7eb;
+    font-size: 14px;
 }
 
-.reasons-heading > span {
-    color: #fb923c;
-
+.reasons-heading span {
+    color: #737d8c;
     font-size: 10px;
-    font-weight: 700;
 }
 
 .analysis-reasons ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     margin: 0;
-
     padding: 0;
-
     list-style: none;
 }
 
 .analysis-reasons li {
     display: flex;
-
     align-items: flex-start;
-
     gap: 10px;
-
-    margin-bottom: 10px;
-
-    color: #cbd5e1;
-
-    font-size: 13px;
-
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+    color: #aeb5c0;
+    font-size: 12px;
     line-height: 1.5;
-}
-
-.analysis-reasons li:last-child {
-    margin-bottom: 0;
 }
 
 .reason-icon {
     flex-shrink: 0;
-
-    color: #fb923c;
-
+    color: #f87171;
     font-weight: 800;
 }
 
 
-/* ========================================
+/* ==========================================
    SAFE RESULT
-======================================== */
+   ========================================== */
 
 .analysis-safe {
     display: flex;
-
     align-items: flex-start;
-
-    gap: 12px;
-
+    gap: 13px;
+    margin-top: 20px;
     padding: 18px;
-
-    background: rgba(34, 197, 94, 0.055);
-
-    border: 1px solid rgba(34, 197, 94, 0.14);
-
-    border-radius: 13px;
+    border-radius: 15px;
+    border: 1px solid rgba(34, 197, 94, 0.12);
+    background: rgba(34, 197, 94, 0.035);
 }
 
 .analysis-safe > span {
-    flex-shrink: 0;
-
-    font-size: 21px;
+    font-size: 20px;
 }
 
 .analysis-safe strong {
+    display: block;
+    margin-bottom: 5px;
     color: #86efac;
-
     font-size: 13px;
 }
 
 .analysis-safe p {
-    margin: 5px 0 0;
-
-    color: #94a3b8;
-
+    margin: 0;
+    color: #8f9a98;
     font-size: 12px;
-
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 
-/* ========================================
+/* ==========================================
    RESULT ACTIONS
-======================================== */
+   ========================================== */
 
 .result-actions {
     display: flex;
-
     gap: 12px;
-
-    margin-top: 25px;
+    margin-top: 24px;
 }
 
 .result-primary-btn,
 .result-secondary-btn {
     flex: 1;
-
-    min-height: 45px;
-
-    padding: 12px;
-
-    border-radius: 11px;
-
+    padding: 13px 18px;
+    border-radius: 12px;
     font-size: 12px;
     font-weight: 700;
-
     cursor: pointer;
-
     transition: all 0.25s ease;
 }
 
 .result-primary-btn {
-    border: 1px solid rgba(96, 165, 250, 0.16);
-
-    background:
-        linear-gradient(
-            135deg,
-            #2563eb,
-            #4f46e5
-        );
-
+    border: none;
+    background: linear-gradient(
+        135deg,
+        #6366f1,
+        #8b5cf6
+    );
     color: #ffffff;
 }
 
 .result-primary-btn:hover {
     transform: translateY(-2px);
-
-    box-shadow:
-        0 10px 25px rgba(37, 99, 235, 0.18);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.22);
 }
 
 .result-secondary-btn {
     border: 1px solid rgba(255, 255, 255, 0.10);
-
     background: rgba(255, 255, 255, 0.035);
-
-    color: #cbd5e1;
+    color: #d1d5db;
 }
 
 .result-secondary-btn:hover {
-    border-color: rgba(59, 130, 246, 0.25);
-
-    background: rgba(59, 130, 246, 0.07);
-
-    color: #ffffff;
-
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.16);
 }
 
 
-/* ========================================
-   ERROR
-======================================== */
+/* ==========================================
+   TABLET
+   ========================================== */
 
-.analysis-error {
-    margin-top: 22px;
-
-    padding: 15px 18px;
-
-    background: rgba(239, 68, 68, 0.07);
-
-    border: 1px solid rgba(239, 68, 68, 0.16);
-
-    border-radius: 11px;
-
-    color: #fca5a5;
-
-    font-size: 13px;
-    font-weight: 600;
-}
-
-
-/* ========================================
-   MOBILE
-======================================== */
-
-@media (max-width: 650px) {
+@media (max-width: 768px) {
 
     .analyze-section {
-        padding: 85px 15px 45px;
+        padding: 105px 16px 60px;
     }
 
     .analyze-heading {
-        margin-bottom: 28px;
+        margin-bottom: 30px;
+    }
+
+    .analyze-card,
+    .analysis-result {
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .input-tabs {
+        flex-direction: column;
+    }
+
+    .tab {
+        width: 100%;
+    }
+
+    .risk-overview {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        text-align: center;
+    }
+
+    .risk-description {
+        text-align: center;
+    }
+
+    .risk-description p {
+        margin: 0 auto;
+    }
+
+    .ml-detection-body {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 480px) {
+
+    .analyze-section {
+        padding: 95px 12px 45px;
     }
 
     .analyze-heading h2 {
-        font-size: 34px;
+        font-size: 31px;
     }
 
     .analyze-heading p {
         font-size: 13px;
     }
 
-    .analyze-card {
-        padding: 20px;
-
-        border-radius: 18px;
+    .analyze-card,
+    .analysis-result {
+        padding: 16px;
+        border-radius: 17px;
     }
 
-    .input-tabs {
-        flex-direction: column;
-
-        gap: 6px;
-    }
-
-    .tab {
-        width: 100%;
-
-        text-align: left;
+    .input-area textarea {
+        min-height: 180px;
     }
 
     .input-footer {
         flex-direction: column;
-
         gap: 5px;
-    }
-
-    .analysis-result {
-        padding: 20px;
-
-        border-radius: 18px;
     }
 
     .result-header {
         align-items: flex-start;
-
         flex-direction: column;
     }
 
-    .risk-overview {
-        flex-direction: column;
-
-        text-align: center;
-
-        gap: 25px;
+    .result-status {
+        align-self: flex-start;
     }
 
-    .risk-description {
+    .score-circle-large {
+        width: 125px;
+        height: 125px;
+    }
+
+    .score-circle-large strong {
+        font-size: 36px;
+    }
+
+    .ml-detection-card {
+        padding: 16px;
+    }
+
+    .ml-detection-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ml-status {
+        align-self: flex-start;
+    }
+
+    .ml-detection-body {
+        grid-template-columns: 1fr;
+    }
+
+    .ml-probability-bars {
+        padding: 15px 3px;
+    }
+
+    .probability-label span,
+    .probability-label strong {
+        font-size: 11px;
+    }
+
+    .probability-track {
+        height: 7px;
+    }
+
+    .recommendation {
+        padding: 15px;
+    }
+
+    .reasons-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .result-actions {
+        flex-direction: column;
+    }
+
+    .result-primary-btn,
+    .result-secondary-btn {
         width: 100%;
-
-        text-align: center;
     }
-}    
+
+}
+
+

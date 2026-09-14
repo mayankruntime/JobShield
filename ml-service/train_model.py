@@ -5,6 +5,8 @@ import re
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
+from sklearn.calibration import CalibratedClassifierCV
+
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -18,9 +20,7 @@ from sklearn.metrics import (
 # ==========================================
 # 1. Text Cleaning
 # ==========================================
-
 def clean_text(text):
-
     text = str(text)
 
     # Remove HTML tags
@@ -45,14 +45,22 @@ def clean_text(text):
 # ==========================================
 # 2. Load Dataset
 # ==========================================
-
 print("Loading dataset...")
 
 train_df = pd.read_csv("data/train.csv")
 test_df = pd.read_csv("data/test.csv")
 
-train_df["text"] = train_df["text"].fillna("").apply(clean_text)
-test_df["text"] = test_df["text"].fillna("").apply(clean_text)
+train_df["text"] = (
+    train_df["text"]
+    .fillna("")
+    .apply(clean_text)
+)
+
+test_df["text"] = (
+    test_df["text"]
+    .fillna("")
+    .apply(clean_text)
+)
 
 X_train = train_df["text"]
 y_train = train_df["fraudulent"]
@@ -67,7 +75,6 @@ print("Testing samples :", len(X_test))
 # ==========================================
 # 3. TF-IDF Vectorization
 # ==========================================
-
 print("\nCreating improved TF-IDF features...")
 
 vectorizer = TfidfVectorizer(
@@ -90,24 +97,39 @@ print("TF-IDF testing shape :", X_test_tfidf.shape)
 # ==========================================
 # 4. Train Linear SVM
 # ==========================================
-
 print("\nTraining Linear SVM...")
 
-model = LinearSVC(
+base_model = LinearSVC(
     C=1.5,
     class_weight="balanced"
 )
 
+
+# ==========================================
+# 5. Calibrate SVM for Probability
+# ==========================================
+print("\nCalibrating SVM probabilities...")
+
+model = CalibratedClassifierCV(
+    estimator=base_model,
+    method="sigmoid",
+    cv=3
+)
+
 model.fit(X_train_tfidf, y_train)
 
+print("Probability calibration completed.")
+
 
 # ==========================================
-# 5. Evaluate Model
+# 6. Evaluate Model
 # ==========================================
-
 predictions = model.predict(X_test_tfidf)
 
-accuracy = accuracy_score(y_test, predictions)
+accuracy = accuracy_score(
+    y_test,
+    predictions
+)
 
 precision = precision_score(
     y_test,
@@ -127,7 +149,10 @@ f1 = f1_score(
     zero_division=0
 )
 
-cm = confusion_matrix(y_test, predictions)
+cm = confusion_matrix(
+    y_test,
+    predictions
+)
 
 
 print("\n==========================================")
@@ -158,22 +183,52 @@ print(
 
 
 # ==========================================
-# 6. Save Models
+# 7. Test Probability Output
 # ==========================================
+print("\nTesting probability output...")
 
-os.makedirs("models", exist_ok=True)
+sample_probabilities = model.predict_proba(
+    X_test_tfidf[:5]
+)
+
+print("\nSample probabilities:")
+
+for i, probabilities in enumerate(sample_probabilities):
+    legitimate_probability = probabilities[0]
+    fraudulent_probability = probabilities[1]
+
+    print(
+        f"Sample {i + 1}: "
+        f"Legitimate={legitimate_probability:.4f}, "
+        f"Fraudulent={fraudulent_probability:.4f}"
+    )
+
+
+# ==========================================
+# 8. Save Models
+# ==========================================
+os.makedirs(
+    "models",
+    exist_ok=True
+)
 
 model_path = "models/job_model.pkl"
 vectorizer_path = "models/tfidf_vectorizer.pkl"
 
-joblib.dump(model, model_path)
-joblib.dump(vectorizer, vectorizer_path)
+joblib.dump(
+    model,
+    model_path
+)
+
+joblib.dump(
+    vectorizer,
+    vectorizer_path
+)
 
 
 # ==========================================
-# 7. Final Output
+# 9. Final Output
 # ==========================================
-
 print("\n==========================================")
 print("MODEL TRAINING COMPLETED")
 print("==========================================")

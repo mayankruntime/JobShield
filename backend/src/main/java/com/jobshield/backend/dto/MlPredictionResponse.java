@@ -3,7 +3,8 @@ package com.jobshield.backend.dto;
 public class MlPredictionResponse {
 
     private String prediction;
-    private double decisionScore;
+    private double fraudProbability;
+    private double legitimateProbability;
 
     public String getPrediction() {
         return prediction;
@@ -13,11 +14,19 @@ public class MlPredictionResponse {
         this.prediction = prediction;
     }
 
-    public double getDecisionScore() {
-        return decisionScore;
+    public double getFraudProbability() {
+        return fraudProbability;
     }
 
-    public void setDecisionScore(double decisionScore) {
-        this.decisionScore = decisionScore;
+    public void setFraudProbability(double fraudProbability) {
+        this.fraudProbability = fraudProbability;
+    }
+
+    public double getLegitimateProbability() {
+        return legitimateProbability;
+    }
+
+    public void setLegitimateProbability(double legitimateProbability) {
+        this.legitimateProbability = legitimateProbability;
     }
 }
