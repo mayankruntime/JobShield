@@ -1,7 +1,7 @@
+
 import pandas as pd
-import joblib
-import os
 import re
+import joblib
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
@@ -12,70 +12,80 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     f1_score,
-    classification_report,
     confusion_matrix
 )
 
 
 # ==========================================
-# 1. Text Cleaning
+# TEXT CLEANING
 # ==========================================
+
 def clean_text(text):
+
     text = str(text)
 
     # Remove HTML tags
     text = re.sub(r"<[^>]+>", " ", text)
 
     # Replace URLs
-    text = re.sub(r"https?://\S+|www\.\S+", " URL ", text)
+    text = re.sub(
+        r"http\S+|www\S+|https\S+",
+        " URL ",
+        text
+    )
 
     # Replace email addresses
     text = re.sub(
-        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b",
+        r"\S+@\S+",
         " EMAIL ",
         text
     )
 
-    # Remove extra spaces
-    text = re.sub(r"\s+", " ", text)
+    # Remove extra whitespace
+    text = re.sub(
+        r"\s+",
+        " ",
+        text
+    )
 
-    return text.strip().lower()
+    # Convert to lowercase
+    text = text.lower().strip()
 
-
-# ==========================================
-# 2. Load Dataset
-# ==========================================
-print("Loading dataset...")
-
-train_df = pd.read_csv("data/train.csv")
-test_df = pd.read_csv("data/test.csv")
-
-train_df["text"] = (
-    train_df["text"]
-    .fillna("")
-    .apply(clean_text)
-)
-
-test_df["text"] = (
-    test_df["text"]
-    .fillna("")
-    .apply(clean_text)
-)
-
-X_train = train_df["text"]
-y_train = train_df["fraudulent"]
-
-X_test = test_df["text"]
-y_test = test_df["fraudulent"]
-
-print("Training samples:", len(X_train))
-print("Testing samples :", len(X_test))
+    return text
 
 
 # ==========================================
-# 3. TF-IDF Vectorization
+# LOAD DATA
 # ==========================================
-print("\nCreating improved TF-IDF features...")
+
+train_path = "data/train.csv"
+test_path = "data/test.csv"
+
+train_df = pd.read_csv(train_path)
+test_df = pd.read_csv(test_path)
+
+print("Training samples:", len(train_df))
+print("Testing samples :", len(test_df))
+
+
+# ==========================================
+# DETECT COLUMNS
+# ==========================================
+
+text_column = "text"
+label_column = "fraudulent"
+
+
+X_train = train_df[text_column].fillna("").apply(clean_text)
+y_train = train_df[label_column]
+
+X_test = test_df[text_column].fillna("").apply(clean_text)
+y_test = test_df[label_column]
+
+
+# ==========================================
+# TF-IDF VECTORIZATION
+# ==========================================
 
 vectorizer = TfidfVectorizer(
     lowercase=True,
@@ -90,13 +100,21 @@ vectorizer = TfidfVectorizer(
 X_train_tfidf = vectorizer.fit_transform(X_train)
 X_test_tfidf = vectorizer.transform(X_test)
 
-print("TF-IDF training shape:", X_train_tfidf.shape)
-print("TF-IDF testing shape :", X_test_tfidf.shape)
+print(
+    "TF-IDF training shape:",
+    X_train_tfidf.shape
+)
+
+print(
+    "TF-IDF testing shape :",
+    X_test_tfidf.shape
+)
 
 
 # ==========================================
-# 4. Train Linear SVM
+# TRAIN LINEAR SVM
 # ==========================================
+
 print("\nTraining Linear SVM...")
 
 base_model = LinearSVC(
@@ -106,9 +124,10 @@ base_model = LinearSVC(
 
 
 # ==========================================
-# 5. Calibrate SVM for Probability
+# PROBABILITY CALIBRATION
 # ==========================================
-print("\nCalibrating SVM probabilities...")
+
+print("Calibrating SVM probabilities...")
 
 model = CalibratedClassifierCV(
     estimator=base_model,
@@ -116,127 +135,117 @@ model = CalibratedClassifierCV(
     cv=3
 )
 
-model.fit(X_train_tfidf, y_train)
+model.fit(
+    X_train_tfidf,
+    y_train
+)
 
 print("Probability calibration completed.")
 
 
 # ==========================================
-# 6. Evaluate Model
+# PREDICTIONS
 # ==========================================
-predictions = model.predict(X_test_tfidf)
+
+y_pred = model.predict(X_test_tfidf)
+
+
+# ==========================================
+# MODEL EVALUATION
+# ==========================================
 
 accuracy = accuracy_score(
     y_test,
-    predictions
+    y_pred
 )
 
 precision = precision_score(
     y_test,
-    predictions,
-    zero_division=0
+    y_pred
 )
 
 recall = recall_score(
     y_test,
-    predictions,
-    zero_division=0
+    y_pred
 )
 
 f1 = f1_score(
     y_test,
-    predictions,
-    zero_division=0
+    y_pred
 )
 
 cm = confusion_matrix(
     y_test,
-    predictions
+    y_pred
 )
 
 
 print("\n==========================================")
-print("JOBSHIELD ML MODEL RESULTS")
+print("MODEL PERFORMANCE")
 print("==========================================")
 
-print("Accuracy :", round(accuracy, 4))
-print("Precision:", round(precision, 4))
-print("Recall   :", round(recall, 4))
-print("F1 Score :", round(f1, 4))
+print(
+    "Accuracy :",
+    round(accuracy, 4)
+)
+
+print(
+    "Precision:",
+    round(precision, 4)
+)
+
+print(
+    "Recall   :",
+    round(recall, 4)
+)
+
+print(
+    "F1 Score :",
+    round(f1, 4)
+)
 
 print("\nConfusion Matrix:")
 print(cm)
 
-print("\nClassification Report:")
-
-print(
-    classification_report(
-        y_test,
-        predictions,
-        target_names=[
-            "Legitimate",
-            "Fraudulent"
-        ],
-        zero_division=0
-    )
-)
-
 
 # ==========================================
-# 7. Test Probability Output
+# SAMPLE PROBABILITIES
 # ==========================================
-print("\nTesting probability output...")
+
+print("\nSample probabilities:")
 
 sample_probabilities = model.predict_proba(
     X_test_tfidf[:5]
 )
 
-print("\nSample probabilities:")
+for index, probabilities in enumerate(
+    sample_probabilities,
+    start=1
+):
 
-for i, probabilities in enumerate(sample_probabilities):
     legitimate_probability = probabilities[0]
-    fraudulent_probability = probabilities[1]
+    fraud_probability = probabilities[1]
 
     print(
-        f"Sample {i + 1}: "
+        f"Sample {index}: "
         f"Legitimate={legitimate_probability:.4f}, "
-        f"Fraudulent={fraudulent_probability:.4f}"
+        f"Fraudulent={fraud_probability:.4f}"
     )
 
 
 # ==========================================
-# 8. Save Models
+# SAVE MODEL
 # ==========================================
-os.makedirs(
-    "models",
-    exist_ok=True
-)
-
-model_path = "models/job_model.pkl"
-vectorizer_path = "models/tfidf_vectorizer.pkl"
 
 joblib.dump(
     model,
-    model_path
+    "models/job_model.pkl"
 )
 
 joblib.dump(
     vectorizer,
-    vectorizer_path
+    "models/tfidf_vectorizer.pkl"
 )
 
+print("\nModel saved successfully.")
 
-# ==========================================
-# 9. Final Output
-# ==========================================
-print("\n==========================================")
-print("MODEL TRAINING COMPLETED")
-print("==========================================")
-
-print("Model saved to:")
-print(model_path)
-
-print("\nVectorizer saved to:")
-print(vectorizer_path)
-
-print("\nJobShield ML model is ready!")

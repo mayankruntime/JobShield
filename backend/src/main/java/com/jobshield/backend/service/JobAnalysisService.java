@@ -1,8 +1,10 @@
 package com.jobshield.backend.service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
@@ -18,314 +20,638 @@ import com.jobshield.backend.repository.UserRepository;
 public class JobAnalysisService {
 
     private final AnalysisHistoryRepository analysisHistoryRepository;
-    private final UserRepository userRepository;
     private final MlService mlService;
     private final UrlContentService urlContentService;
+    private final UserRepository userRepository;
 
     public JobAnalysisService(
             AnalysisHistoryRepository analysisHistoryRepository,
-            UserRepository userRepository,
             MlService mlService,
-            UrlContentService urlContentService
-    ) {
+            UrlContentService urlContentService,
+            UserRepository userRepository) {
+
         this.analysisHistoryRepository = analysisHistoryRepository;
-        this.userRepository = userRepository;
         this.mlService = mlService;
         this.urlContentService = urlContentService;
+        this.userRepository = userRepository;
     }
 
-    public JobAnalysisResponse analyzeJob(
+    public JobAnalysisResponse analyze(
             JobAnalysisRequest request,
-            String email
-    ) {
+            String userEmail) {
 
-        User user = userRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found")
-                );
+        String inputType = request.getInputType();
+        String originalContent = request.getContent();
 
-        String content = request.getContent();
-
-        if ("url".equalsIgnoreCase(request.getInputType())) {
-            content = urlContentService.extractText(
-                    request.getContent()
-            );
+        if (originalContent == null || originalContent.isBlank()) {
+            throw new RuntimeException("Job content cannot be empty");
         }
 
-        if (content == null || content.trim().isEmpty()) {
+        String content = originalContent.trim();
 
-            List<String> reasons = new ArrayList<>();
+        // =========================================================
+        // URL ANALYSIS
+        // =========================================================
 
-            reasons.add("Job description is empty.");
+        if ("url".equalsIgnoreCase(inputType)) {
 
-            return new JobAnalysisResponse(
-                    0,
-                    "UNKNOWN",
-                    "Please provide a job description for analysis.",
-                    reasons,
-                    "UNKNOWN",
-                    0.0,
-                    0.0
-            );
+            try {
+                URI uri = URI.create(content);
+
+                if (!"http".equalsIgnoreCase(uri.getScheme())
+                        && !"https".equalsIgnoreCase(uri.getScheme())) {
+
+                    throw new RuntimeException(
+                            "Only HTTP and HTTPS URLs are supported.");
+                }
+
+                content = urlContentService.extractText(content);
+
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid URL.");
+            }
+        }
+
+        if (content == null || content.isBlank()) {
+            throw new RuntimeException(
+                    "Unable to extract meaningful content from this URL.");
         }
 
         String text = content.toLowerCase(Locale.ROOT);
+
+        // =========================================================
+        // RULE BASED DETECTION
+        // =========================================================
 
         int ruleScore = 0;
 
         List<String> reasons = new ArrayList<>();
 
-        // ==========================================
-        // RULE-BASED DETECTION
-        // ==========================================
+        // =========================================================
+        // PAYMENT / MONEY REQUEST
+        // =========================================================
 
-        // 1. Registration / processing / joining fee
         if (containsAny(text,
+                "pay registration fee",
                 "registration fee",
                 "processing fee",
                 "joining fee",
-                "pay fee",
-                "pay a fee",
+                "joining fees",
                 "security deposit",
+                "pay upfront",
+                "pay first",
+                "send money",
+                "transfer money",
                 "deposit money",
-                "pay money")) {
+                "pay money",
+                "payment required",
+                "investment required",
+                "invest money")) {
 
-            ruleScore += 25;
+            ruleScore += 30;
 
             reasons.add(
-                    "Job asks for registration, processing, joining fee or money deposit."
-            );
+                    "The job appears to request money or an upfront payment.");
         }
 
-        // 2. Bank / UPI / financial information
+        // =========================================================
+        // FINANCIAL INFORMATION
+        // =========================================================
+
         if (containsAny(text,
                 "bank account",
                 "bank details",
+                "account number",
                 "credit card",
                 "debit card",
-                "upi",
+                "card details",
+                "banking information",
                 "upi id",
-                "account number",
-                "atm pin",
-                "card number")) {
+                "upi details")) {
 
             ruleScore += 25;
 
             reasons.add(
-                    "Job asks for sensitive financial or payment information."
-            );
+                    "The message requests sensitive financial information.");
         }
 
-        // 3. WhatsApp / Telegram communication
+        // =========================================================
+        // IDENTITY DOCUMENTS
+        // =========================================================
+
         if (containsAny(text,
-                "whatsapp",
-                "telegram",
+                "aadhaar",
+                "aadhar",
+                "pan card",
+                "passport",
+                "driving licence",
+                "driving license",
+                "identity proof",
+                "id proof",
+                "government id",
+                "social security number")) {
+
+            ruleScore += 25;
+
+            reasons.add(
+                    "The job request includes sensitive identity documents.");
+        }
+
+        // =========================================================
+        // WHATSAPP / TELEGRAM
+        // =========================================================
+
+        if (containsAny(text,
+                "contact us on whatsapp",
                 "contact me on whatsapp",
+                "whatsapp me",
+                "message me on whatsapp",
+                "whatsapp number",
+                "contact on telegram",
+                "telegram me",
                 "message me on telegram")) {
 
             ruleScore += 15;
 
             reasons.add(
-                    "Recruiter asks to communicate through WhatsApp or Telegram."
-            );
+                    "Recruitment is being pushed through WhatsApp or Telegram.");
         }
 
-        // 4. Unrealistic salary
-        if (containsAny(text,
-                "earn ₹1 lakh",
-                "earn rs 1 lakh",
-                "earn 1 lakh",
-                "earn $10000",
-                "earn $10,000",
+        // =========================================================
+        // UNREALISTIC EARNING CLAIMS
+        // =========================================================
+
+        boolean earningClaim = containsAny(text,
                 "guaranteed income",
                 "guaranteed salary",
+                "guaranteed earnings",
                 "make money fast",
                 "easy money",
-                "earn money from home")) {
+                "earn money from home",
+                "make money from home",
+                "unlimited income",
+                "earn thousands",
+                "high income",
+                "high earning",
+                "weekly earnings",
+                "quick money",
+                "change your life",
+                "financial freedom",
+                "financial independence");
 
-            ruleScore += 20;
+        boolean dailyEarningPattern =
+                Pattern.compile(
+                        "(earn|make)\\s*(up to|over|around)?\\s*[₹$€£]?\\s*\\d+[\\d,]*\\s*(per|a|each)?\\s*(day|daily)",
+                        Pattern.CASE_INSENSITIVE)
+                .matcher(text)
+                .find();
+
+        boolean weeklyEarningPattern =
+                Pattern.compile(
+                        "(earn|make)\\s*(up to|over|around)?\\s*[₹$€£]?\\s*\\d+[\\d,]*\\s*(per|a|each)?\\s*(week|weekly)",
+                        Pattern.CASE_INSENSITIVE)
+                .matcher(text)
+                .find();
+
+        boolean largeEarningPattern =
+                Pattern.compile(
+                        "(earn|make)\\s*(up to|over|around)?\\s*[₹$€£]?\\s*\\d{4,}",
+                        Pattern.CASE_INSENSITIVE)
+                .matcher(text)
+                .find();
+
+        if (earningClaim
+                || dailyEarningPattern
+                || weeklyEarningPattern
+                || largeEarningPattern) {
+
+            ruleScore += 25;
 
             reasons.add(
-                    "Job contains potentially unrealistic or guaranteed earning claims."
-            );
+                    "The job contains unrealistic or unusually high earning claims.");
         }
 
-        // 5. Urgency / pressure
-        if (containsAny(text,
-                "act now",
-                "apply immediately",
+        // =========================================================
+        // URGENCY / PRESSURE
+        // =========================================================
+
+        boolean urgency = containsAny(text,
                 "limited seats",
-                "limited vacancies",
-                "urgent hiring",
-                "urgent requirement",
+                "space is limited",
+                "apply immediately",
+                "contact immediately",
+                "act now",
+                "urgent",
                 "hurry",
-                "apply today",
-                "immediate joining")) {
+                "limited opportunity",
+                "limited openings",
+                "respond immediately");
+
+        if (urgency) {
 
             ruleScore += 10;
 
             reasons.add(
-                    "Job uses urgency or pressure to encourage immediate action."
-            );
+                    "The message uses urgency or pressure to encourage quick action.");
         }
 
-        // 6. Personal documents
-        if (containsAny(text,
-                "send your aadhaar",
-                "send aadhaar",
-                "aadhar card",
-                "pan card",
-                "passport",
-                "send your id",
-                "identity proof",
-                "government id")) {
+        // =========================================================
+        // MLM / NETWORK MARKETING
+        // =========================================================
+
+        boolean networkMarketing =
+                containsAny(text,
+                        "network marketing",
+                        "multi level marketing",
+                        "multilevel marketing",
+                        "mlm",
+                        "business opportunity",
+                        "build your own business",
+                        "be your own boss",
+                        "entrepreneurial opportunity",
+                        "direct selling",
+                        "direct sales opportunity",
+                        "recruit your friends",
+                        "recruit friends and family",
+                        "friend and family market",
+                        "friends and family market",
+                        "downline",
+                        "team building income",
+                        "residual income",
+                        "passive income");
+
+        boolean brandPartner =
+                containsAny(text,
+                        "brand partner",
+                        "brand partners",
+                        "become a brand partner");
+
+        boolean productPromotion =
+                containsAny(text,
+                        "promote products",
+                        "paid to promote",
+                        "promote them",
+                        "promote them through",
+                        "sell products",
+                        "product promotion");
+
+        boolean recruitmentLanguage =
+                containsAny(text,
+                        "looking for motivated individuals",
+                        "looking for motivated people",
+                        "motivated and hardworking individuals",
+                        "join our team",
+                        "join the team",
+                        "build a team",
+                        "grow your team",
+                        "recruit",
+                        "recruiting people",
+                        "recruiting individuals");
+
+        boolean motivationalLanguage =
+                containsAny(text,
+                        "change your life",
+                        "become successful",
+                        "financial freedom",
+                        "financial independence",
+                        "be your own boss",
+                        "work on your own terms",
+                        "unlimited potential",
+                        "limitless income",
+                        "real life business skills",
+                        "entrepreneurial skills");
+
+        // =========================================================
+        // STRONG BRAND PARTNER COMBINATION
+        // =========================================================
+
+        boolean strongBrandPartnerPattern =
+                brandPartner
+                && (productPromotion
+                    || containsAny(text,
+                            "friend and family market",
+                            "friends and family market",
+                            "network marketing"))
+                && (recruitmentLanguage || motivationalLanguage);
+
+        if (strongBrandPartnerPattern) {
+
+            ruleScore += 50;
+
+            reasons.add(
+                    "The job combines brand-partner/product-promotion language with recruitment or motivational messaging.");
+        }
+
+        // =========================================================
+        // GENERAL NETWORK MARKETING
+        // =========================================================
+
+        if (networkMarketing && !strongBrandPartnerPattern) {
+
+            ruleScore += 25;
+
+            reasons.add(
+                    "The message contains network-marketing or recruitment language.");
+        }
+
+        // =========================================================
+        // MOTIVATIONAL + RECRUITMENT
+        // =========================================================
+
+        if (motivationalLanguage
+                && recruitmentLanguage
+                && !strongBrandPartnerPattern) {
 
             ruleScore += 20;
 
             reasons.add(
-                    "Job requests sensitive personal identity documents."
-            );
+                    "The message uses motivational/lifestyle-focused recruitment language.");
         }
 
-        // 7. Suspicious links
-        if (containsAny(text,
-                "bit.ly",
-                "tinyurl",
-                "click this link",
-                "click here to register",
-                "verify your account")) {
+        // =========================================================
+        // WORK FROM HOME + EASY MONEY
+        // =========================================================
+
+        boolean workFromHome =
+                containsAny(text,
+                        "work from home",
+                        "work-from-home",
+                        "wfh",
+                        "home based job",
+                        "home-based job");
+
+        boolean easyIncome =
+                containsAny(text,
+                        "easy money",
+                        "easy income",
+                        "earn money from home",
+                        "make money from home",
+                        "quick money",
+                        "guaranteed income");
+
+        if (workFromHome && easyIncome) {
 
             ruleScore += 15;
 
             reasons.add(
-                    "Job contains potentially suspicious links or verification requests."
-            );
+                    "The message combines work-from-home claims with easy or fast income promises.");
         }
+
+        // =========================================================
+        // NO EXPERIENCE + IMMEDIATE START + EARNING
+        // =========================================================
+
+        boolean noExperience =
+                containsAny(text,
+                        "no experience required",
+                        "no experience needed",
+                        "without experience",
+                        "no prior experience");
+
+        boolean immediateStart =
+                containsAny(text,
+                        "start immediately",
+                        "immediate start",
+                        "start today",
+                        "join immediately");
+
+        if (noExperience
+                && immediateStart
+                && (earningClaim
+                    || dailyEarningPattern
+                    || weeklyEarningPattern
+                    || largeEarningPattern)) {
+
+            ruleScore += 20;
+
+            reasons.add(
+                    "The message combines no-experience requirements, immediate joining and earning claims.");
+        }
+
+        // =========================================================
+        // VAGUE RECRUITMENT / CONTACT
+        // =========================================================
+
+        boolean vagueRecruitment =
+                containsAny(text,
+                        "send your details",
+                        "contact me",
+                        "reach out to me",
+                        "message me",
+                        "interested candidates contact",
+                        "limited openings");
+
+        if (vagueRecruitment
+                && (urgency || recruitmentLanguage)) {
+
+            ruleScore += 10;
+
+            reasons.add(
+                    "The recruitment message provides vague contact instructions instead of normal job application details.");
+        }
+
+        // =========================================================
+        // FUNDS / MONEY COLLECTION
+        // =========================================================
+
+        boolean fundsCollection =
+                containsAny(text,
+                        "collect funds",
+                        "collect money",
+                        "receive payments",
+                        "handle payments",
+                        "collect payments",
+                        "paypal",
+                        "send payments");
+
+        if (fundsCollection
+                && containsAny(text,
+                        "job",
+                        "position",
+                        "role",
+                        "representative",
+                        "assistant")) {
+
+            ruleScore += 25;
+
+            reasons.add(
+                    "The job appears to involve collecting or handling funds.");
+        }
+
+        // =========================================================
+        // SUSPICIOUS LINKS
+        // =========================================================
+
+        if (containsAny(text,
+                "bit.ly",
+                "tinyurl",
+                "shorturl",
+                "click here to apply",
+                "click this link",
+                "download this app")) {
+
+            ruleScore += 15;
+
+            reasons.add(
+                    "The message contains a potentially suspicious link or application instruction.");
+        }
+
+        // =========================================================
+        // LIMIT RULE SCORE
+        // =========================================================
 
         ruleScore = Math.min(ruleScore, 100);
 
-        // ==========================================
-        // ML MODEL PREDICTION
-        // ==========================================
+        // =========================================================
+        // ML PREDICTION
+        // =========================================================
 
-        MlPredictionResponse mlResult =
-                mlService.predict(content);
+        MlPredictionResponse mlResponse;
 
-        String mlPrediction =
-                mlResult.getPrediction();
+        try {
 
-        double mlFraudProbability =
-                mlResult.getFraudProbability();
+            mlResponse = mlService.predict(content);
 
-        double mlLegitimateProbability =
-                mlResult.getLegitimateProbability();
+        } catch (Exception e) {
 
-        // ==========================================
-        // ML RISK SCORE
-        // ==========================================
-
-        int mlScore = (int) Math.round(
-                mlFraudProbability * 100
-        );
-
-        mlScore = Math.min(
-                100,
-                Math.max(0, mlScore)
-        );
-
-        // Add ML reason only when model considers
-        // the posting more likely to be fraudulent.
-        if ("FRAUDULENT".equalsIgnoreCase(mlPrediction)) {
-
-            reasons.add(
-                    "Machine learning model detected patterns similar to fraudulent job postings."
-            );
+            throw new RuntimeException(
+                    "ML service is unavailable. Please start the ML service.");
         }
 
-        // ==========================================
-        // COMBINE RULE + ML
-        // ==========================================
+        double mlFraudProbability =
+                mlResponse.getFraudProbability();
 
-        int finalRiskScore =
-                (int) Math.round(
-                        (ruleScore * 0.60) +
-                        (mlScore * 0.40)
-                );
+        double mlLegitimateProbability =
+                mlResponse.getLegitimateProbability();
 
-        finalRiskScore =
-                Math.min(
-                        100,
-                        Math.max(0, finalRiskScore)
-                );
+        double mlScore =
+                mlFraudProbability * 100.0;
 
-        // ==========================================
-        // FINAL RISK LEVEL
-        // ==========================================
+        // =========================================================
+        // FINAL SCORE
+        // =========================================================
+
+        double finalScore =
+                (ruleScore * 0.60)
+                + (mlScore * 0.40);
+
+        // Strong brand-partner combination
+        if (strongBrandPartnerPattern) {
+
+            finalScore += 25;
+        }
+
+        // Funds collection + PayPal
+        if (fundsCollection
+                && containsAny(text,
+                        "paypal",
+                        "collect funds",
+                        "collect money")) {
+
+            finalScore += 15;
+        }
+
+        // No experience + immediate start + earnings
+        if (noExperience
+                && immediateStart
+                && (weeklyEarningPattern
+                    || dailyEarningPattern
+                    || largeEarningPattern)) {
+
+            finalScore += 10;
+        }
+
+        finalScore = Math.min(finalScore, 100);
+
+        int riskScore =
+                (int) Math.round(finalScore);
+
+        // =========================================================
+        // RISK LEVEL
+        // =========================================================
 
         String riskLevel;
         String message;
 
-        if (finalRiskScore >= 60) {
+        if (riskScore >= 60) {
 
             riskLevel = "HIGH RISK";
 
             message =
-                    "This job posting contains multiple suspicious indicators. "
-                    + "Proceed with extreme caution.";
+                    "This job contains multiple scam-like warning signs. "
+                    + "Proceed with extreme caution and avoid sharing money "
+                    + "or sensitive personal information.";
 
-        } else if (finalRiskScore >= 30) {
+        } else if (riskScore >= 30) {
 
             riskLevel = "SUSPICIOUS";
 
             message =
-                    "This job posting contains some suspicious indicators. "
-                    + "Verify the recruiter and company before proceeding.";
+                    "This job contains some suspicious characteristics. "
+                    + "Verify the employer and job details before proceeding.";
 
         } else {
 
             riskLevel = "LOW RISK";
 
             message =
-                    "No major scam indicators were detected in this job posting. "
-                    + "Still verify the employer before sharing personal information.";
+                    "No major scam indicators were detected. "
+                    + "Still verify the employer independently before accepting the job.";
         }
 
-        // ==========================================
+        // =========================================================
+        // ML REASON
+        // =========================================================
+
+        if ("FRAUDULENT".equalsIgnoreCase(
+                mlResponse.getPrediction())) {
+
+            reasons.add(
+                    "The machine-learning model detected patterns associated with fraudulent job postings.");
+        }
+
+        // =========================================================
         // SAVE HISTORY
-        // ==========================================
+        // =========================================================
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found."));
 
         AnalysisHistory history =
                 new AnalysisHistory(
                         user,
-                        content,
-                        request.getInputType(),
-                        finalRiskScore,
+                        originalContent,
+                        inputType,
+                        riskScore,
                         riskLevel,
                         message
                 );
 
         analysisHistoryRepository.save(history);
 
-        // ==========================================
-        // RETURN RESULT
-        // ==========================================
+        // =========================================================
+        // RESPONSE
+        // =========================================================
 
         return new JobAnalysisResponse(
-                finalRiskScore,
+                riskScore,
                 riskLevel,
                 message,
                 reasons,
-                mlPrediction,
+                mlResponse.getPrediction(),
                 mlFraudProbability,
                 mlLegitimateProbability
         );
     }
 
+    // =============================================================
+    // HELPER METHOD
+    // =============================================================
+
     private boolean containsAny(
             String text,
-            String... keywords
-    ) {
+            String... keywords) {
 
         for (String keyword : keywords) {
 

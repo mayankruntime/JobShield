@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-
 import com.jobshield.backend.dto.JobAnalysisRequest;
 import com.jobshield.backend.dto.JobAnalysisResponse;
 import com.jobshield.backend.entity.AnalysisHistory;
@@ -18,6 +16,8 @@ import com.jobshield.backend.entity.User;
 import com.jobshield.backend.repository.AnalysisHistoryRepository;
 import com.jobshield.backend.repository.UserRepository;
 import com.jobshield.backend.service.JobAnalysisService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
@@ -45,7 +45,7 @@ public class JobAnalysisController {
 
         String email = authentication.getName();
 
-        return jobAnalysisService.analyzeJob(request, email);
+        return jobAnalysisService.analyze(request, email);
     }
 
     @GetMapping("/analysis/history")
