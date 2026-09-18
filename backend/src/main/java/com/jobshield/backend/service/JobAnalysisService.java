@@ -1,3 +1,4 @@
+
 package com.jobshield.backend.service;
 
 import java.net.URI;
@@ -91,7 +92,7 @@ public class JobAnalysisService {
         // PAYMENT / MONEY REQUEST
         // =========================================================
 
-        if (containsAny(text,
+        boolean paymentRequest = containsAny(text,
                 "pay registration fee",
                 "registration fee",
                 "processing fee",
@@ -106,7 +107,9 @@ public class JobAnalysisService {
                 "pay money",
                 "payment required",
                 "investment required",
-                "invest money")) {
+                "invest money");
+
+        if (paymentRequest) {
 
             ruleScore += 30;
 
@@ -118,7 +121,7 @@ public class JobAnalysisService {
         // FINANCIAL INFORMATION
         // =========================================================
 
-        if (containsAny(text,
+        boolean financialInfoRequest = containsAny(text,
                 "bank account",
                 "bank details",
                 "account number",
@@ -127,7 +130,9 @@ public class JobAnalysisService {
                 "card details",
                 "banking information",
                 "upi id",
-                "upi details")) {
+                "upi details");
+
+        if (financialInfoRequest) {
 
             ruleScore += 25;
 
@@ -139,7 +144,7 @@ public class JobAnalysisService {
         // IDENTITY DOCUMENTS
         // =========================================================
 
-        if (containsAny(text,
+        boolean identityDocumentRequest = containsAny(text,
                 "aadhaar",
                 "aadhar",
                 "pan card",
@@ -149,7 +154,9 @@ public class JobAnalysisService {
                 "identity proof",
                 "id proof",
                 "government id",
-                "social security number")) {
+                "social security number");
+
+        if (identityDocumentRequest) {
 
             ruleScore += 25;
 
@@ -161,7 +168,7 @@ public class JobAnalysisService {
         // WHATSAPP / TELEGRAM
         // =========================================================
 
-        if (containsAny(text,
+        boolean messagingRecruitment = containsAny(text,
                 "contact us on whatsapp",
                 "contact me on whatsapp",
                 "whatsapp me",
@@ -169,7 +176,9 @@ public class JobAnalysisService {
                 "whatsapp number",
                 "contact on telegram",
                 "telegram me",
-                "message me on telegram")) {
+                "message me on telegram");
+
+        if (messagingRecruitment) {
 
             ruleScore += 15;
 
@@ -220,10 +229,13 @@ public class JobAnalysisService {
                 .matcher(text)
                 .find();
 
-        if (earningClaim
+        boolean hasEarningSignal =
+                earningClaim
                 || dailyEarningPattern
                 || weeklyEarningPattern
-                || largeEarningPattern) {
+                || largeEarningPattern;
+
+        if (hasEarningSignal) {
 
             ruleScore += 25;
 
@@ -415,12 +427,12 @@ public class JobAnalysisService {
                         "start today",
                         "join immediately");
 
-        if (noExperience
+        boolean noExperienceEarningCombination =
+                noExperience
                 && immediateStart
-                && (earningClaim
-                    || dailyEarningPattern
-                    || weeklyEarningPattern
-                    || largeEarningPattern)) {
+                && hasEarningSignal;
+
+        if (noExperienceEarningCombination) {
 
             ruleScore += 20;
 
@@ -464,13 +476,15 @@ public class JobAnalysisService {
                         "paypal",
                         "send payments");
 
-        if (fundsCollection
-                && containsAny(text,
+        boolean jobRoleContext =
+                containsAny(text,
                         "job",
                         "position",
                         "role",
                         "representative",
-                        "assistant")) {
+                        "assistant");
+
+        if (fundsCollection && jobRoleContext) {
 
             ruleScore += 25;
 
@@ -482,18 +496,79 @@ public class JobAnalysisService {
         // SUSPICIOUS LINKS
         // =========================================================
 
-        if (containsAny(text,
+        boolean suspiciousLink = containsAny(text,
                 "bit.ly",
                 "tinyurl",
                 "shorturl",
                 "click here to apply",
                 "click this link",
-                "download this app")) {
+                "download this app");
+
+        if (suspiciousLink) {
 
             ruleScore += 15;
 
             reasons.add(
                     "The message contains a potentially suspicious link or application instruction.");
+        }
+
+        // =========================================================
+        // STRONG SCAM COMBINATIONS
+        // =========================================================
+
+        boolean paymentPlusMessaging =
+                paymentRequest && messagingRecruitment;
+
+        boolean financialInfoPlusMessaging =
+                financialInfoRequest && messagingRecruitment;
+
+        boolean identityPlusUrgency =
+                identityDocumentRequest && urgency;
+
+        boolean earningPlusMessaging =
+                hasEarningSignal && messagingRecruitment;
+
+        boolean earningPlusUrgency =
+                hasEarningSignal && urgency;
+
+        if (paymentPlusMessaging) {
+
+            ruleScore += 20;
+
+            reasons.add(
+                    "The message combines a payment request with off-platform recruitment.");
+        }
+
+        if (financialInfoPlusMessaging) {
+
+            ruleScore += 15;
+
+            reasons.add(
+                    "Sensitive financial information is requested through an informal recruitment channel.");
+        }
+
+        if (identityPlusUrgency) {
+
+            ruleScore += 15;
+
+            reasons.add(
+                    "The message combines sensitive identity requests with pressure to act quickly.");
+        }
+
+        if (earningPlusMessaging) {
+
+            ruleScore += 15;
+
+            reasons.add(
+                    "Income promises are combined with recruitment through an informal messaging channel.");
+        }
+
+        if (earningPlusUrgency) {
+
+            ruleScore += 10;
+
+            reasons.add(
+                    "Income promises are combined with urgency or pressure.");
         }
 
         // =========================================================
@@ -552,13 +627,40 @@ public class JobAnalysisService {
         }
 
         // No experience + immediate start + earnings
-        if (noExperience
-                && immediateStart
-                && (weeklyEarningPattern
-                    || dailyEarningPattern
-                    || largeEarningPattern)) {
+        if (noExperienceEarningCombination) {
 
             finalScore += 10;
+        }
+
+        // Multiple strong scam combinations
+        int strongCombinationCount = 0;
+
+        if (paymentPlusMessaging) {
+            strongCombinationCount++;
+        }
+
+        if (financialInfoPlusMessaging) {
+            strongCombinationCount++;
+        }
+
+        if (identityPlusUrgency) {
+            strongCombinationCount++;
+        }
+
+        if (earningPlusMessaging) {
+            strongCombinationCount++;
+        }
+
+        if (earningPlusUrgency) {
+            strongCombinationCount++;
+        }
+
+        if (strongCombinationCount >= 2) {
+
+            finalScore += 10;
+
+            reasons.add(
+                    "Multiple independent scam indicators appear together in the job message.");
         }
 
         finalScore = Math.min(finalScore, 100);
@@ -663,3 +765,4 @@ public class JobAnalysisService {
         return false;
     }
 }
+
