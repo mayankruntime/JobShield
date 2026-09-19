@@ -1,5 +1,6 @@
 package com.jobshield.backend.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -12,9 +13,11 @@ public class MlService {
 
     private final RestClient restClient;
 
-    public MlService() {
+    public MlService(
+            @Value("${ml.service.url}") String mlServiceUrl
+    ) {
         this.restClient = RestClient.builder()
-                .baseUrl("http://127.0.0.1:8000")
+                .baseUrl(mlServiceUrl)
                 .build();
     }
 
