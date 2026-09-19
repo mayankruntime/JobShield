@@ -1,4 +1,3 @@
-
 package com.jobshield.backend.service;
 
 import java.net.URI;
@@ -589,8 +588,16 @@ public class JobAnalysisService {
 
         } catch (Exception e) {
 
+            System.err.println("==========================================");
+            System.err.println("JOBSHIELD ML SERVICE ERROR");
+            System.err.println("==========================================");
+            System.err.println("Error Type: " + e.getClass().getName());
+            System.err.println("Error Message: " + e.getMessage());
+            e.printStackTrace();
+            System.err.println("==========================================");
+
             throw new RuntimeException(
-                    "ML service is unavailable. Please start the ML service.");
+                    "ML service is unavailable. Please try again later.");
         }
 
         double mlFraudProbability =
@@ -610,13 +617,11 @@ public class JobAnalysisService {
                 (ruleScore * 0.60)
                 + (mlScore * 0.40);
 
-        // Strong brand-partner combination
         if (strongBrandPartnerPattern) {
 
             finalScore += 25;
         }
 
-        // Funds collection + PayPal
         if (fundsCollection
                 && containsAny(text,
                         "paypal",
@@ -626,13 +631,11 @@ public class JobAnalysisService {
             finalScore += 15;
         }
 
-        // No experience + immediate start + earnings
         if (noExperienceEarningCombination) {
 
             finalScore += 10;
         }
 
-        // Multiple strong scam combinations
         int strongCombinationCount = 0;
 
         if (paymentPlusMessaging) {
@@ -765,4 +768,3 @@ public class JobAnalysisService {
         return false;
     }
 }
-
