@@ -56,6 +56,7 @@ public class JobAnalysisService {
         if ("url".equalsIgnoreCase(inputType)) {
 
             try {
+
                 URI uri = URI.create(content);
 
                 if (!"http".equalsIgnoreCase(uri.getScheme())
@@ -68,11 +69,13 @@ public class JobAnalysisService {
                 content = urlContentService.extractText(content);
 
             } catch (IllegalArgumentException e) {
+
                 throw new RuntimeException("Invalid URL.");
             }
         }
 
         if (content == null || content.isBlank()) {
+
             throw new RuntimeException(
                     "Unable to extract meaningful content from this URL.");
         }
@@ -97,6 +100,7 @@ public class JobAnalysisService {
                 "processing fee",
                 "joining fee",
                 "joining fees",
+                "security fee",
                 "security deposit",
                 "pay upfront",
                 "pay first",
@@ -617,6 +621,37 @@ public class JobAnalysisService {
                 (ruleScore * 0.60)
                 + (mlScore * 0.40);
 
+        // =========================================================
+        // HIGH-CONFIDENCE RULE OVERRIDES
+        // =========================================================
+        //
+        // These signals are treated as critical because an ML model
+        // can sometimes assign a low fraud probability even when a
+        // strong rule-based scam indicator is present.
+        //
+
+        if (paymentRequest) {
+
+            finalScore = Math.max(finalScore, 60);
+
+            if (!reasons.contains(
+                    "A payment request is considered a high-risk job scam indicator.")) {
+
+                reasons.add(
+                        "A payment request is considered a high-risk job scam indicator.");
+            }
+        }
+
+        if (financialInfoRequest && messagingRecruitment) {
+
+            finalScore = Math.max(finalScore, 65);
+        }
+
+        if (identityPlusUrgency) {
+
+            finalScore = Math.max(finalScore, 60);
+        }
+
         if (strongBrandPartnerPattern) {
 
             finalScore += 25;
@@ -635,6 +670,10 @@ public class JobAnalysisService {
 
             finalScore += 10;
         }
+
+        // =========================================================
+        // MULTIPLE STRONG INDICATORS
+        // =========================================================
 
         int strongCombinationCount = 0;
 
@@ -665,6 +704,10 @@ public class JobAnalysisService {
             reasons.add(
                     "Multiple independent scam indicators appear together in the job message.");
         }
+
+        // =========================================================
+        // LIMIT FINAL SCORE
+        // =========================================================
 
         finalScore = Math.min(finalScore, 100);
 
